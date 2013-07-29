@@ -32,13 +32,14 @@ corticalLabels <- c( "L occipital", "R occipital",
 
 subjectID <- paste0( "S", c( 1:( 0.5 * ( nrow( kirby ) + nrow( oasis ) ) ) ) )
 subjectID <- rbind( subjectID, subjectID )
-subjectID <- as.vector( tmp )
 
 scanOrder <- rep( c( "First", "Repeat" ), 0.5 * ( nrow( kirby ) + nrow( oasis ) ) )
 
 repeatabilityDataFrame <- data.frame( rbind( kirby, oasis ) )
 repeatabilityDataFrame$ID <- as.factor( subjectID )
 repeatabilityDataFrame$ScanOrder <- as.factor( scanOrder )
+repeatabilityDataFrame$Site <- as.factor( site )
+
 
 iccData <- data.frame( First = as.vector( data.matrix( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), 6:37] ) ),
                        Repeat = as.vector( data.matrix( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), 6:37] ) ) )
@@ -80,28 +81,61 @@ repeatabilityPlot <- ggplot( iccData, aes( x = Average, y = Difference ) ) +
                 ggtitle( paste0( "Reproducibility (ICC = ", round( iccResults$results[2,2], digits = 2 ), ")" ) )
 ggsave( filename = paste( "reproducibilityBA.pdf", sep = "" ), plot = repeatabilityPlot, width = 8, height = 6, units = 'in' )
 
+################################
 
 repeatabilityError <- 100 * abs( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), 6:37] -
   repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), 6:37] ) /
   ( 0.5 * (  repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), 6:37] +
     repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), 6:37] ) )
+repeatabilityError2 <- abs( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), 6:37] -
+  repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), 6:37] )
 
 errorMeans <- c()
 errorStds <- c()
+errorMeans2 <- c()
+errorStds2 <- c()
 
 for( i in 1:32 )
   {
   errorMeans[i] <- mean( repeatabilityError[,i] )
   errorStds[i] <- sd( repeatabilityError[,i] )
+  errorMeans2[i] <- mean( repeatabilityError2[,i] )
+  errorStds2[i] <- sd( repeatabilityError2[,i] )
   }
 
 for( i in 1:16 )
   {
   cat( corticalLabels[2 * i - 1], " & $",
+    round( errorMeans2[2 * i - 1], digits = 2 ), " \\pm ", round( errorStds2[2 * i - 1], digits = 2 ), "$ & $",
+    round( errorMeans2[2 * i], digits = 2 ), " \\pm ", round( errorStds2[2 * i], digits = 2 ), "$ & $",
     round( errorMeans[2 * i - 1], digits = 2 ), " \\pm ", round( errorStds[2 * i - 1], digits = 2 ), "$ & $",
     round( errorMeans[2 * i], digits = 2 ), " \\pm ", round( errorStds[2 * i], digits = 2 ), "$\\\\\n",
     sep = '' );
   }
+
+###################################
+
+
+# Test:  thickness_difference ~ 1 + SITE + SEX + AGE + VOLUME
+
+repDataFrame <- data.frame()
+for( i in seq( 1, nrow( repeatabilityDataFrame ), by = 2 ) )
+  {
+  if( i == 1 )
+    {
+    repDataFrame <- repeatabilityDataFrame[i,1:37]
+    repDataFrame[1,6:37] <- repeatabilityDataFrame[i,6:37] - repeatabilityDataFrame[i+1,6:37]
+    }
+  else
+    {
+    tmp <- repeatabilityDataFrame[i,1:37]
+    tmp[1,6:37] <- repeatabilityDataFrame[i,6:37] - repeatabilityDataFrame[i+1,6:37]
+    repDataFrame <- rbind( repDataFrame, tmp )
+    }
+  }
+repDataFrame$AVERAGE_DIFF <- rowMeans( repDataFrame[i,6:37] )
+
+summary( lm( AVERAGE_DIFF ~ 1 + SITE + SEX + AGE + VOLUME, data = repDataFrame ) )
 
 
 
