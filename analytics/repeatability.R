@@ -137,6 +137,16 @@ repDataFrame$AVERAGE_DIFF <- rowMeans( repDataFrame[i,6:37] )
 
 summary( lm( AVERAGE_DIFF ~ 1 + SITE + SEX + AGE + VOLUME, data = repDataFrame ) )
 
+for( i in 1:32 )
+  {
+  myformula <- as.formula( paste0( "LABEL_", i, "~ 1 + SITE + SEX + AGE + VOLUME" ) )
+  cat( paste0( corticalLabels[i], " ~ 1 + SITE + SEX + AGE + VOLUME" ), "\n" )
+  mysummary <- summary( lm( myformula, data = repDataFrame ) )
+  print( mysummary$coefficients )
+  cat( "------------------------------------------\n" )
+  }
+
+
 
 
 # qvalues <- c()
