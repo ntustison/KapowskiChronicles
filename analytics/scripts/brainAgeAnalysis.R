@@ -6,8 +6,8 @@ library( ggplot2 )
 # testingData <- read.csv( "PCAVariation0.99/testingBrainSegmentationPosteriors2Projections.csv" )
 # trainingData <- read.csv( "PCAVariation0.99/trainingCorticalThicknessProjections.csv" )
 # testingData <- read.csv( "PCAVariation0.99/testingCorticalThicknessProjections.csv" )
-trainingData <- read.csv( "PCAVariation0.99/trainingTiledProjections.csv" )
-testingData <- read.csv( "PCAVariation0.99/testingTiledProjections.csv" )
+trainingData <- read.csv( "../PCAVariation0.99/trainingTiledProjections.csv" )
+testingData <- read.csv( "../PCAVariation0.99/testingTiledProjections.csv" )
 
 # Remove ID, gender, and site
 
@@ -40,7 +40,7 @@ brainAgePlot <- ggplot( plotData, aes( x = TrueAge, y = PredictedAge ) ) +
                 geom_point( colour = "darkred", size = 4, alpha = 0.75 ) +
                 scale_x_continuous( "True age (years)", breaks = seq( 0, 100, by = 10 ), labels = seq( 0, 100, by = 10 ), limits = c( 0, 100 ) ) +
                 scale_y_continuous( "Predicted age (years)", breaks = seq( 0, 100, by = 10 ), labels = seq( 0, 100, by = 10 ), limits = c( 0, 100 ) )
-ggsave( filename = paste( "brainAgeTiled.pdf", sep = "" ), plot = brainAgePlot, width = 6, height = 6, units = 'in' )
+ggsave( filename = paste( "../brainAgeTiled.pdf", sep = "" ), plot = brainAgePlot, width = 6, height = 6, units = 'in' )
 
 
 
@@ -62,7 +62,7 @@ ggsave( filename = paste( "brainAgeTiled.pdf", sep = "" ), plot = brainAgePlot, 
 #                 scale_x_continuous( "True age", breaks = seq( 10, 80, by = 10 ), labels = seq( 10, 80, by = 10 ), limits = c( 10, 80 ) ) +
 #                 scale_y_continuous( "True - predicted age", breaks = seq( -20, 20, by = 5 ), labels = seq( -20, 20, by = 5 ), limits = c( -20, 20 ) ) +
 #                 ggtitle( "True vs. Predicted Age" )
-# ggsave( filename = paste( "brainAge.pdf", sep = "" ), plot = brainAgePlot, width = 8, height = 6, units = 'in' )
+# ggsave( filename = paste( "../brainAge.pdf", sep = "" ), plot = brainAgePlot, width = 8, height = 6, units = 'in' )
 #
 
 if( FALSE )

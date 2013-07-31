@@ -43,13 +43,15 @@ maximumNumberOfPermutations <- 1
 sigma <- 5
 ages <- seq( 10, 80, by = 5 )
 
-resultsIXI <- read.csv( 'labelresultsI.csv' )
-resultsKirby <- read.csv( 'labelresultsK.csv' )
-resultsNKI <- read.csv( 'labelresultsN.csv' )
-resultsOasis <- read.csv( 'labelresultsO.csv' )
+resultsIXI <- read.csv( '../labelresultsI.csv' )
+resultsKirby <- read.csv( '../labelresultsK.csv' )
+resultsNKI <- read.csv( '../labelresultsN.csv' )
+resultsOasis <- read.csv( '../labelresultsO.csv' )
 
 resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis );
 resultsCombined$SITE <- as.factor( resultsCombined$SITE )
+
+# resultsCombined <- resultsCombined[which( resultsCombined$AGE >= 10 & resultsCombined$AGE <= 80 ),];
 
 corticalLabels <- c( "L occipital", "R occipital",
                      "L cingulate", "R cingulate",
@@ -85,11 +87,59 @@ weightedAges <- rep( NA, numberOfAges )
 rownames( networkAll ) <- corticalLabels
 colnames( networkAll ) <- ages
 
-################################################################
+############################################
 #
-#  for rendering
+# Section 3.4:  Gender and Age Relationships with DiReCT Cortical Thickness
+#   Look at basic regression results, i.e.
+#     thickness ~ 1 + AGE + AGE^2 + GENDER + SITE + VOLUME
 #
-################################################################
+############################################
+
+male_color = "darkred";
+female_color = "navyblue";
+
+gender <- cut( resultsCombined$SEX, breaks = c( 0.5, 1.5, 2.5 ), label = c( "male", "female" ) );
+gender[which( gender == 1 )] <- 'male';
+gender[which( gender == 2 )] <- 'female';
+
+for( i in 1:32 )
+  {
+  myformula <- as.formula( paste0( "LABEL_", i, " ~ 1 + AGE + I(AGE^2) + VOLUME + SITE + SEX" ) )
+  cat( paste0( corticalLabels[i], " ~ 1 + SITE + SEX + AGE + I(AGE^2) + VOLUME" ), "\n" )
+  mylm <- lm( myformula, data = resultsCombined )
+  mysummary <- summary( mylm )
+  print( mysummary$coefficients )
+  cat( "------------------------------------------\n" )
+
+#   thickness <- mylm$residuals
+  thickness <- resultsCombined[,i+5]
+
+  plotData <- data.frame( cbind( Age = resultsCombined$AGE, Thickness = thickness, Gender = gender ) )
+  plotData <- transform( plotData, Gender = factor( Gender ) );
+
+  thickPlot <- ggplot( plotData, aes( x = Age, y = Thickness, group = Gender ) ) +
+               stat_smooth( aes( group = Gender, colour = Gender ), formula = y ~ 1 + x + I(x^2) , method = "lm", size = 1, n = 1000, level = 0.95, se = TRUE, fullrange = TRUE, fill = 'black', alpha = 0.5 ) +
+               geom_point( data = plotData, aes( colour = Gender, shape = Gender ), size = 3, alpha = 0.25 ) +
+               scale_x_continuous( "Age (years)", breaks = seq( 10, 80, by = 10 ), labels = seq( 10, 80, by = 10 ), limits = c( 10, 80 ) ) +
+#                scale_y_continuous( "Thickness (mm)", breaks = seq( -1, 1, by = 1 ), labels = seq( -1, 1, by = 1 ), limits = c( -1, 1 ) ) +
+               scale_y_continuous( "Thickness (mm)", breaks = seq( 0, 6, by = 1 ), labels = seq( 0, 6, by = 1 ), limits = c( 0, 6 ) ) +
+               scale_colour_manual( values = c( male_color, female_color ), breaks = c( 1, 2 ), labels = c( "Male", "Female" ) ) +
+               scale_shape_manual( values = c( 18, 16 ), breaks = c( 1, 2 ), labels = c( "Male", "Female" ) ) +
+               theme( legend.justification = c( 0, 0 ), legend.position = c( 0, 0 ) ) +
+               ggtitle( paste( "Cortical thickness (", corticalLabels[i], ")", sep = "" ) )
+  ggsave( filename = paste0( "../figs/label", i, "_results.pdf" ), plot = thickPlot, width = 8, height = 6, units = 'in' )
+  }
+
+############################################
+#
+# Section 3.5. Gender Structural Connectivity Across Age Using Cortical Thickness
+# permutation testing on sex differences across age
+#
+############################################
+
+#
+#  begin rendering code
+#
 
 rgl.bg( color = "white" )
 
@@ -114,12 +164,9 @@ par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 
-
-############################################
 #
-# permutation testing on sex differences across age
+# end rendering code
 #
-############################################
 
 count <- 1
 for( age in ages )
@@ -182,14 +229,14 @@ for( age in ages )
 
       renderNetwork( maleGraph$adjacencyMatrix, locations )
 
-      filename <- paste0( 'figs/temp_male_community_' , age, '.pdf' )
+      filename <- paste0( '../figs/temp_male_community_' , age, '.pdf' )
       pdf( filename )
       plot( maleGraph$walktrapcomm, maleGraph$mygraph, layout = layout.fruchterman.reingold,
             vertex.size = 15,
             vertex.label = corticalLabels, vertex.label.cex = 0.75, vertex.label.font = 2 )
       dev.off()
 
-      filename <- paste0( 'figs/temp_male_community_X_' , age, '.pdf' )
+      filename <- paste0( '../figs/temp_male_community_X_' , age, '.pdf' )
       pdf( filename )
       V( maleGraph$mygraph )$name <- corticalLabels
       dendPlot( walktrap.community( maleGraph$mygraph ), mode = "phylo", type = "fan", edge.width = 2,
@@ -198,16 +245,16 @@ for( age in ages )
 #       axisPhylo()
       dev.off()
 
-      filename <- paste0( 'figs/temp_male_network_F_', age, '.png' )
+      filename <- paste0( '../figs/temp_male_network_F_', age, '.png' )
       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
       par3d( userMatrix = frontal, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
       rgl.snapshot( filename )
 
-      filename <- paste0( 'figs/temp_male_network_L_', age, '.png' )
+      filename <- paste0( '../figs/temp_male_network_L_', age, '.png' )
       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
       par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
       rgl.snapshot( filename )
-      filename <- paste0( 'figs/temp_male_network_R_', age, '.png' )
+      filename <- paste0( '../figs/temp_male_network_R_', age, '.png' )
 
       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
       par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
@@ -222,14 +269,14 @@ for( age in ages )
 #
 #       renderNetwork( femaleGraph$adjacencyMatrix, locations )
 #
-#       filename <- paste0( 'figs/temp_female_community_' , age, '.pdf' )
+#       filename <- paste0( '../figs/temp_female_community_' , age, '.pdf' )
 #       pdf( filename )
 #       plot( femaleGraph$walktrapcomm, femaleGraph$mygraph, layout = layout.fruchterman.reingold,
 #             vertex.size = 15,
 #             vertex.label = corticalLabels, vertex.label.cex = 0.75, vertex.label.font = 2 )
 #       dev.off()
 #
-#       filename <- paste0( 'figs/temp_female_community_X_' , age, '.pdf' )
+#       filename <- paste0( '../figs/temp_female_community_X_' , age, '.pdf' )
 #       pdf( filename )
 #       V( femaleGraph$mygraph )$name <- corticalLabels
 #       dendPlot( walktrap.community( femaleGraph$mygraph ), mode = "phylo", type = "fan", edge.width = 2,
@@ -238,16 +285,16 @@ for( age in ages )
 # #       axisPhylo()
 #       dev.off()
 #
-#       filename <- paste0( 'figs/temp_female_network_F_', age, '.png' )
+#       filename <- paste0( '../figs/temp_female_network_F_', age, '.png' )
 #       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 #       par3d( userMatrix = frontal, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 #       rgl.snapshot( filename )
 #
-#       filename <- paste0( 'figs/temp_female_network_L_', age, '.png' )
+#       filename <- paste0( '../figs/temp_female_network_L_', age, '.png' )
 #       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 #       par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 #       rgl.snapshot( filename )
-#       filename <- paste0( 'figs/temp_female_network_R_', age, '.png' )
+#       filename <- paste0( '../figs/temp_female_network_R_', age, '.png' )
 #
 #       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 #       par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
@@ -279,11 +326,9 @@ for( age in ages )
   count <- count+1
   }
 
-##################################
 #
 #  Create plots
 #
-##################################
 
 # (weighted) age vs. average thickness network plot
 
@@ -348,7 +393,6 @@ networkAllPlot <- ggplot( melt( networkAllData ) ) +
                ggtitle( "Both genders network" )
 ggsave( filename = "allNetwork.pdf", plot = networkAllPlot, width = 10, height = 6, units = 'in' )
 
-
 #
 # pvals <- rep( NA, nrow( networkAll ) )
 # for ( n in 1:32 )
@@ -361,14 +405,6 @@ ggsave( filename = "allNetwork.pdf", plot = networkAllPlot, width = 10, height =
 # print( "transitivity with age" )
 # print( p.adjust( pvals, method = 'BH' ) )
 #
-
-
-
-
-
-
-
-
 
 # > source( "gender_study2.R")
 #   |===========================================================================================| 100%

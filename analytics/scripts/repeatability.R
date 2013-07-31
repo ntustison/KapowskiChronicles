@@ -1,8 +1,8 @@
 library( psych )
 library( ggplot2 )
 
-kirby <- read.csv( "labelResultsK_pairwise.csv" )
-oasis <- read.csv( "labelResultsO_pairwise.csv" )
+kirby <- read.csv( "../labelResultsK_pairwise.csv" )
+oasis <- read.csv( "../labelResultsO_pairwise.csv" )
 
 corticalLabels <- c( "L occipital", "R occipital",
                      "L cingulate", "R cingulate",
