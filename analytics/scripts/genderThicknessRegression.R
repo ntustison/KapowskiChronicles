@@ -11,23 +11,6 @@ resultsKirby <- read.csv( '../labelresultsK.csv' )
 resultsNKI <- read.csv( '../labelresultsN.csv' )
 resultsOasis <- read.csv( '../labelresultsO.csv' )
 
-corticalLabels <- c( "L occipital", "R occipital",
-                     "L cingulate", "R cingulate",
-                     "L insula",    "R insula",
-                     "L temporal pole",   "R temporal pole",
-                     "L superior temporal", "R superior temporal",
-                     "L infero temporal", "R infero temporal",
-                     "L parahippocampal", "R parahippocampal",
-                     "L frontal pole",    "R frontal pole",
-                     "L superior frontal","R superior frontal",
-                     "L middle frontal",  "R middle frontal",
-                     "L inferior",        "R inferior",
-                     "L orbital frontal", "R orbital frontal",
-                     "L precentral",      "R precentral",
-                     "L superior parietal", "R superior parietal",
-                     "L inferior parietal", "R inferior parietal",
-                     "L postcentral",       "R postcentral" )
-
 resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
 resultsCombined$SEX <- resultsCombined$SEX - 1
 
@@ -129,8 +112,8 @@ annotation <- paste0( "AUC = ", signif( auc, 2 ), " (95%CI: ", signif( ci.lower,
 sexPlot <- ggplot( sexPlotData, aes( x = x, y = y ) ) +
       geom_line( aes( colour = "navyblue" ), size = 1.0 ) +
       geom_abline ( intercept = 0, slope = 1, colour = "darkred", linetype = "dashed", size = 1.0 ) +
-      scale_x_continuous( "False Positive Rate (1-Specificity)" ) +
-      scale_y_continuous( "True Positive Rate (Sensitivity)" ) +
+      scale_x_continuous( "False positive rate (1-specificity)" ) +
+      scale_y_continuous( "True positive rate (sensitivity)" ) +
       scale_colour_manual( labels = annotation, values = "navyblue" ) +
       theme( legend.justification = c( 1, 0 ), legend.position = c( 1, 0 ), legend.title = element_blank(), legend.key = element_blank() )
 ggsave( filename = paste( "../figs/sexPlot.pdf", sep = "" ), plot = sexPlot, width = 6, height = 6, units = 'in' )

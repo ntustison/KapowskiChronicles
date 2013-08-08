@@ -1,3 +1,7 @@
+# Load required libraries
+
+library( graphics )
+
 resultsIXI <- read.csv( '../labelresultsI.csv' )
 resultsKirby <- read.csv( '../labelresultsK.csv' )
 resultsNKI <- read.csv( '../labelresultsN.csv' )
@@ -59,22 +63,38 @@ corticalLabels <- c( "L occipital", "R occipital",
 
 ################################################
 #
-# Plot by individuals
+# Plot by individuals and check for normality on the residuals
 #
 #################################################
 
 res <- residuals( lm( as.matrix( resultsCombined[,6:37] ) ~ resultsCombined$VOLUME + resultsCombined$SITE ) )
-# for( i in 1:nrow( res ) )
-#   {
-#   res[i,] <- ( res[i,] - min( res[i,] ) ) / ( max( res[i,] - min( res[i,] ) ) )
-#   }
+res.qvalues <- rep( NA, nrow( res ) )
+
+for( i in 1:ncol( res ) )
+  {
+  res[,i] <- ( res[,i] - min( res[,i] ) ) / ( max( res[,i] - min( res[,i] ) ) )
+  }
+for( i in 1:length( res.pvalues ) )
+  {
+  res.qvalues[i] <- sf.test( res[i,] )$p.value
+  }
+res.qvalues <- p.adjust( res.qvalues, "fdr" )
 
 ageIDLabels <- c();
 for( i in 1:nrow( resultsCombined ) )
   {
   tmp <- strsplit( as.character( resultsCombined$ID[i] ), "_" )
-  id <- tmp[[1]][1];
-  ageIDLabels <- append( ageIDLabels, paste0( id, " (", resultsCombined$AGE[i], ")" ) )
+  id <- tmp[[1]][1]
+  if( length( tmp[[1]] ) > 1 )
+    {
+    id <- tmp[[1]][2]
+    }
+  if( res.qvalues[i] <= 0.05 )
+    {
+    ageIDLabels <- append( ageIDLabels, paste0( id, "* (", resultsCombined$AGE[i], ")" ) )
+    } else {
+    ageIDLabels <- append( ageIDLabels, paste0( id, " (", resultsCombined$AGE[i], ")" ) )
+    }
   }
 
 pdf( '../figs/thicknessStarsIndividuals.pdf' )
