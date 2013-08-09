@@ -115,6 +115,7 @@ sexPlot <- ggplot( sexPlotData, aes( x = x, y = y ) ) +
       scale_x_continuous( "False positive rate (1-specificity)" ) +
       scale_y_continuous( "True positive rate (sensitivity)" ) +
       scale_colour_manual( labels = annotation, values = "navyblue" ) +
-      theme( legend.justification = c( 1, 0 ), legend.position = c( 1, 0 ), legend.title = element_blank(), legend.key = element_blank() )
+      theme( legend.justification = c( 1, 0 ), legend.position = c( 1, 0 ), legend.title = element_blank(), legend.background = element_blank(), legend.key = element_blank(), legend.text = element_text( colour = 'navyblue' ) ) +
+      guides( colour = guide_legend( override.aes = list( shape = NA ) ), keywidth = 0 )
 ggsave( filename = paste( "../figs/sexPlot.pdf", sep = "" ), plot = sexPlot, width = 6, height = 6, units = 'in' )
 
