@@ -151,9 +151,6 @@ http://rss.acs.unt.edu/Rdoc/library/kernlab/html/rvm.html
 } 
 package to train the RVM model and perform prediction.  Results for both
 analyses  are shown in Figure \ref{fig:brainAge} (cf. Figure 3 in \cite{franke2010}).
-Again, testing and training data, as well as 
-R scripts used to produce the 
-plots are publicly available.  
 The resulting predictions for both image sets are quite similar as demonstrated 
 visually in Figure 3.  The correlation coefficients and mean errors in Table 
 \ref{table:brainAge} between the
@@ -167,10 +164,54 @@ two approaches are also evidence of mutual corroboration.
   \includegraphics[width=65mm]{sexPlot.pdf} &
   \includegraphics[width=65mm]{ageRegressionPredict.pdf} 
   \end{tabular}
-  \caption{ROC curve based on a gender prediction model using total brain volume and regional thickness values.  Specifically, the model is
+  \caption{(a) ROC curve based on a gender prediction model using total brain volume and regional thickness values (coupled with cross terms with age---cf Eqn. \ref{eq:roc}).  
+  (b) Correlation plot for age prediction using regional thickness.
   }
   \label{fig:sexROC}
 \end{figure}
+
+As discussed in the introduction, previous studies have demonstrated 
+thickness variation with gender and age which is supported with
+the results of our study.  Subdividing the cohort into training and
+testing subsets, we generate regression models from the training data
+for both gender and age and predict such biological relationships with 
+the testing data. Stepwise model selection using Akaike Information Criterion
+(AIC) provides an optimal model with minimal parameters.  This provides 
+insight into regional thickness importance as well
+as the influence of confounds such as site.
+
+We first tested the ability of regional thickness and cerebral volume to determine
+gender.%
+\footnote{
+The script for this analysis can be found in genderThicknessRegression.R.
+}
+In the notation of \cite{wilkinson1973}, the initial binomial 
+generalized linear model is
+\begin{align}
+  GENDER \sim AGE &+ VOLUME + \sum_{i=1}^{32} T(REGION_{i}) \\ \nonumber
+              &+\sum_{i=1}^{32} T(REGION_{i}):AGE
+\end{align}
+where $T(REGION_{i})$ is the average thickness value in $REGION_{i}$.
+The stepwise AIC model selection resulted in the pruned model
+\begin{align}
+  \label{eq:roc}
+  GENDER \sim VOLUME + \sum_{i \in \alpha} T(REGION_i) + \sum_{j \in \beta} T(REGION_j):AGE
+\end{align}
+where the sets $\alpha = \{\cdots\}$ and $\beta = \{\cdots\}$.  We then characterized the performance using a ROC curve (see Figure \ref{fig:sexROC}(a)) with AUC = 0.86 and 95\% confidence interval = (0.84, 0.88). 
+   
+Similarly, a testing/training data partitioning was used to generate a linear model 
+and test age prediction by regressing on regional thickness,
+cerebral volume, gender, and site resulting in the formula
+\begin{align}
+  AGE \sim VOLUME + SITE + GENDER + \sum_{i=1}^{32} T(REGION_{i})
+\end{align}
+with stepwise AIC selection producing the following model
+\begin{align}
+  AGE \sim SITE + \sum_{i\in\gamma} T(REGION_{i})
+\end{align}
+where the set $\gamma = \{\cdots\}$.  The predicted age vs. true age plot is given
+in Figure \ref{fig:sexROC}(b) with Pearson correlation coefficient = 0.79 with a mean
+age error of 10 years (cf Figure \ref{fig:brainAGE}).
 
 
 \subsection{Gender Structural Connectivity Across Age Using Cortical Thickness}

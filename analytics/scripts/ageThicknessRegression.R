@@ -9,7 +9,6 @@ resultsNKI <- read.csv( '../labelresultsN.csv' )
 resultsOasis <- read.csv( '../labelresultsO.csv' )
 
 resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
-resultsCombined$SEX <- resultsCombined$SEX - 1
 
 trainingPercentage <- 0.5
 partitioning <- runif( nrow( resultsCombined ) )
@@ -26,7 +25,7 @@ testingData <- resultsCombined[testingIndices,];
 
 regionalTerms <- paste( names( resultsCombined )[6:37] , collapse = " + " )
 
-myFormula <- as.formula( paste( "AGE ~ ", regionalTerms, " + SITE + VOLUME", sep = '' ) )
+myFormula <- as.formula( paste( "AGE ~ ", regionalTerms, " + SEX + SITE + VOLUME", sep = '' ) )
 ageModel <- lm( myFormula, data = trainingData )
 ageModelAIC <- stepAIC( ageModel, direction = "both", k = 4, trace = TRUE )
 predictedAge <- predict( ageModelAIC, newdata = testingData, type = 'response' )

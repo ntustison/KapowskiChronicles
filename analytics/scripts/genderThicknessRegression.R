@@ -29,7 +29,7 @@ testingData <- resultsCombined[testingIndices,];
 
 regionalTerms <- paste( names( resultsCombined )[6:37] , collapse = " * AGE + " )
 
-myFormula <- as.formula( paste( "SEX ~ ", regionalTerms, " * AGE + VOLUME + (AGE^2) ", sep = '' ) )
+myFormula <- as.formula( paste( "SEX ~ AGE + ", regionalTerms, " * AGE + VOLUME ", sep = '' ) )
 sexModel <- glm( myFormula, data = trainingData, family = "binomial" )
 sexModelAIC <- stepAIC( sexModel, direction = "both", k = 4, trace = TRUE )
 sexPrediction <- predict( sexModelAIC, newdata = testingData, type = 'response' )
