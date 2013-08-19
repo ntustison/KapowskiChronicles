@@ -39,9 +39,9 @@ calculateCorrelationMatrix <- function( mat, weights, nuis )
 ##
 #################################################################
 
-maximumNumberOfPermutations <- 1
+maximumNumberOfPermutations <- 1000
 sigma <- 5
-ages <- seq( 10, 80, by = 5 )
+ages <- seq( 10, 90, by = 5 )
 
 resultsIXI <- read.csv( '../labelresultsI.csv' )
 resultsKirby <- read.csv( '../labelresultsK.csv' )
@@ -101,10 +101,10 @@ colnames( networkAll ) <- ages
 
 rgl.bg( color = "white" )
 
-template <- antsImageRead( 'glasshead_male.nii.gz', 3 )
-brain <- antsImageRead( 'glassbrain_male.nii.gz', 3 )
-leftright <- antsImageRead( 'leftright_male.nii.gz', 3 )
-nirepLabels <- antsImageRead( 'nirep_male.nii.gz', 3 )
+template <- antsImageRead( '../glasshead_male.nii.gz', 3 )
+brain <- antsImageRead( '../glassbrain_male.nii.gz', 3 )
+leftright <- antsImageRead( '../leftright_male.nii.gz', 3 )
+nirepLabels <- antsImageRead( '../nirep_male.nii.gz', 3 )
 centroids <- LabelImageCentroids( nirepLabels, physical = TRUE )
 
 # template <- maskImage( template, leftright, 2 )

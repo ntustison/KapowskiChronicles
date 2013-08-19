@@ -1,8 +1,8 @@
 library( psych )
 library( ggplot2 )
 
-kirby <- read.csv( "../labelResultsK_pairwise.csv" )
-oasis <- read.csv( "../labelResultsO_pairwise.csv" )
+kirby <- read.csv( "../labelresultsK_pairwise.csv" )
+oasis <- read.csv( "../labelresultsO_pairwise.csv" )
 
 corticalLabels <- c( "L occipital", "R occipital",
                      "L cingulate", "R cingulate",
@@ -38,7 +38,8 @@ scanOrder <- rep( c( "First", "Repeat" ), 0.5 * ( nrow( kirby ) + nrow( oasis ) 
 repeatabilityDataFrame <- data.frame( rbind( kirby, oasis ) )
 repeatabilityDataFrame$ID <- as.factor( subjectID )
 repeatabilityDataFrame$ScanOrder <- as.factor( scanOrder )
-repeatabilityDataFrame$Site <- as.factor( site )
+repeatabilityDataFrame$SEX <- as.factor( repeatabilityDataFrame$SEX )
+repeatabilityDataFrame$SITE <- as.factor( repeatabilityDataFrame$SITE )
 
 
 iccData <- data.frame( First = as.vector( data.matrix( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), 6:37] ) ),
@@ -73,7 +74,7 @@ upperLineIntercept <- mean( iccData$Difference ) + 1.96 * sd( iccData$Difference
 lowerLineIntercept <- mean( iccData$Difference ) - 1.96 * sd( iccData$Difference )
 
 repeatabilityPlot <- ggplot( iccData, aes( x = Average, y = Difference ) ) +
-                geom_point( colour = "darkred", size = 4, alpha = 0.75 ) +
+                geom_point( colour = "darkred", size = 4, alpha = 0.5 ) +
                 geom_hline( aes( yintercept = upperLineIntercept ), colour = "navyblue", linetype = "dashed" ) +
                 geom_hline( aes( yintercept = lowerLineIntercept ), colour = "navyblue", linetype = "dashed" ) +
                 scale_x_continuous( "Average First/Repeat thickness (mm)" ) +
@@ -133,7 +134,7 @@ for( i in seq( 1, nrow( repeatabilityDataFrame ), by = 2 ) )
     repDataFrame <- rbind( repDataFrame, tmp )
     }
   }
-repDataFrame$AVERAGE_DIFF <- rowMeans( repDataFrame[i,6:37] )
+repDataFrame$AVERAGE_DIFF <- rowMeans( repDataFrame[,6:37] )
 
 summary( lm( AVERAGE_DIFF ~ 1 + SITE + SEX + AGE + VOLUME, data = repDataFrame ) )
 
@@ -149,21 +150,21 @@ for( i in 1:32 )
 
 
 
-# qvalues <- c()
-# meanDifferences <- c()
-# for( i in 6:37 )
-#   {
-#   myTest <- t.test( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), i],
-#                     repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), i],
-#                     paired = TRUE, conf.int = TRUE )
-#   qvalues[i-5] <- myTest$p.value
-#   meanDifferences[i-5] <- myTest$estimate
-#   }
-# qvalues <- p.adjust( qvalues, method = "fdr" )
+qvalues <- c()
+meanDifferences <- c()
+for( i in 6:37 )
+  {
+  myTest <- t.test( repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), i],
+                    repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), i],
+                    paired = TRUE, conf.int = TRUE )
+  qvalues[i-5] <- myTest$p.value
+  meanDifferences[i-5] <- myTest$estimate
+  }
+qvalues <- p.adjust( qvalues, method = "fdr" )
 #
-# for( i in 1:32 )
-#   {
-#   cat( corticalLabels[i], ": mean of the differences = ", meanDifferences[i],
-#        " (q-value = ", qvalues[i], ")\n", sep = '' )
-#   }
+for( i in 1:32 )
+  {
+  cat( corticalLabels[i], ": mean of the differences = ", meanDifferences[i],
+       " (q-value = ", qvalues[i], ")\n", sep = '' )
+  }
 

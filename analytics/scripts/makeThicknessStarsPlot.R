@@ -1,6 +1,7 @@
 # Load required libraries
 
 library( graphics )
+library( nortest )
 
 resultsIXI <- read.csv( '../labelresultsI.csv' )
 resultsKirby <- read.csv( '../labelresultsK.csv' )
@@ -74,7 +75,7 @@ for( i in 1:ncol( res ) )
   {
   res[,i] <- ( res[,i] - min( res[,i] ) ) / ( max( res[,i] - min( res[,i] ) ) )
   }
-for( i in 1:length( res.pvalues ) )
+for( i in 1:length( res.qvalues ) )
   {
   res.qvalues[i] <- sf.test( res[i,] )$p.value
   }
@@ -92,16 +93,17 @@ for( i in 1:nrow( resultsCombined ) )
   if( res.qvalues[i] <= 0.05 )
     {
     ageIDLabels <- append( ageIDLabels, paste0( id, "* (", resultsCombined$AGE[i], ")" ) )
+    cat( paste0( id, "* (", resultsCombined$AGE[i], ")" ) )
     } else {
     ageIDLabels <- append( ageIDLabels, paste0( id, " (", resultsCombined$AGE[i], ")" ) )
     }
   }
 
-pdf( '../figs/thicknessStarsIndividuals.pdf' )
+pdf( '../figs/thicknessStarsIndividualsNew.pdf' )
 stars( res,
        labels = ageIDLabels, cex = 0.2, scale = TRUE, radius = FALSE, full = TRUE, flip.labels = FALSE,
        mar = c( 0, 0, 2, 0 ),
-       col.lines = resultsCombined$COLOR, main = "Thickness Residuals Across Individuals" )
+       col.lines = resultsCombined$COLOR, main = "Brain Constellation Map of Thickness Residuals" )
 dev.off()
 
 
