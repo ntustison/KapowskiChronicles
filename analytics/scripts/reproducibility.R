@@ -80,7 +80,7 @@ repeatabilityPlot <- ggplot( iccData, aes( x = Average, y = Difference ) ) +
                 scale_x_continuous( "Average First/Repeat thickness (mm)" ) +
                 scale_y_continuous( "First - Repeated thickness (mm)", breaks = seq( -1.5, 1.5, by = 0.5 ), labels = seq( -1.5, 1.5, by = 0.5 ), limits = c( -1.5, 1.5 ) ) +
                 ggtitle( paste0( "Reproducibility (ICC = ", round( iccResults$results[2,2], digits = 2 ), ")" ) )
-ggsave( filename = paste( "reproducibilityBA.pdf", sep = "" ), plot = repeatabilityPlot, width = 8, height = 6, units = 'in' )
+ggsave( filename = paste( "../figs/reproducibilityBA.pdf", sep = "" ), plot = repeatabilityPlot, width = 8, height = 6, units = 'in' )
 
 ################################
 

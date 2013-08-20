@@ -68,7 +68,7 @@ corticalLabels <- c( "L occipital", "R occipital",
 #
 #################################################
 
-res <- residuals( lm( as.matrix( resultsCombined[,6:37] ) ~ resultsCombined$VOLUME + resultsCombined$SITE ) )
+res <- residuals( lm( as.matrix( resultsCombined[,6:37] ) ~ resultsCombined$VOLUME + resultsCombined$SITE + resultsCombined$AGE ) )
 res.qvalues <- rep( NA, nrow( res ) )
 
 for( i in 1:ncol( res ) )

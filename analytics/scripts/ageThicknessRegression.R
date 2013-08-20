@@ -50,50 +50,46 @@ brainAgePlot <- ggplot( plotData, aes( x = TrueAge, y = PredictedAge ) ) +
                 guides( colour = guide_legend( override.aes = list( shape = NA ) ), keywidth = 0 )
 ggsave( filename = paste( "../ageRegressionPredict.pdf", sep = "" ), plot = brainAgePlot, width = 6, height = 6, units = 'in' )
 
-
-
 # Call:
-# lm(formula = AGE ~ LABEL_2 + LABEL_3 + LABEL_5 + LABEL_7 + LABEL_9 +
-#     LABEL_11 + LABEL_12 + LABEL_13 + LABEL_15 + LABEL_16 + LABEL_21 +
-#     LABEL_22 + LABEL_23 + LABEL_24 + LABEL_25 + LABEL_26 + LABEL_28 +
-#     LABEL_31 + SITE + VOLUME, data = trainingData)
+# lm(formula = AGE ~ LABEL_2 + LABEL_3 + LABEL_7 + LABEL_9 + LABEL_12 +
+#     LABEL_13 + LABEL_15 + LABEL_16 + LABEL_21 + LABEL_23 + LABEL_25 +
+#     LABEL_26 + LABEL_27 + LABEL_28 + LABEL_31 + SITE, data = trainingData)
 #
 # Residuals:
 #     Min      1Q  Median      3Q     Max
-# -43.663  -8.444   0.641   8.309  40.089
+# -28.402  -7.868   0.209   7.055  32.831
 #
 # Coefficients:
-#               Estimate Std. Error t value Pr(>|t|)
-# (Intercept)  9.198e+01  7.381e+00  12.463  < 2e-16 ***
-# LABEL_2     -5.778e+00  2.132e+00  -2.711 0.006939 **
-# LABEL_3     -4.746e+00  2.416e+00  -1.965 0.049967 *
-# LABEL_5      4.226e+00  1.373e+00   3.079 0.002188 **
-# LABEL_7      3.495e+00  1.509e+00   2.316 0.020947 *
-# LABEL_9     -1.966e+01  3.004e+00  -6.545 1.43e-10 ***
-# LABEL_11     5.998e+00  2.970e+00   2.019 0.043951 *
-# LABEL_12     9.984e+00  2.862e+00   3.488 0.000527 ***
-# LABEL_13    -6.731e+00  1.926e+00  -3.495 0.000514 ***
-# LABEL_15     6.110e+00  2.741e+00   2.229 0.026231 *
-# LABEL_16     6.378e+00  2.482e+00   2.570 0.010454 *
-# LABEL_21    -1.505e+01  3.838e+00  -3.921 9.98e-05 ***
-# LABEL_22    -8.432e+00  3.679e+00  -2.292 0.022322 *
-# LABEL_23     1.469e+01  3.391e+00   4.332 1.77e-05 ***
-# LABEL_24    -8.680e+00  3.367e+00  -2.578 0.010212 *
-# LABEL_25    -1.634e+01  4.959e+00  -3.296 0.001048 **
-# LABEL_26    -1.498e+01  5.047e+00  -2.968 0.003138 **
-# LABEL_28     1.077e+01  3.656e+00   2.946 0.003361 **
-# LABEL_31     1.361e+01  4.099e+00   3.320 0.000962 ***
-# SITEHH      -1.036e+00  1.896e+00  -0.546 0.585114
-# SITEIOP     -7.608e-01  2.844e+00  -0.267 0.789203
-# SITEKirby   -1.121e+01  3.912e+00  -2.866 0.004328 **
-# SITENKI     -3.149e+00  2.138e+00  -1.473 0.141377
-# SITEOASIS    8.384e+00  1.970e+00   4.256 2.46e-05 ***
-# VOLUME      -1.301e-05  4.463e-06  -2.915 0.003714 **
+#             Estimate Std. Error t value Pr(>|t|)
+# (Intercept) 109.8142     6.8401  16.055  < 2e-16 ***
+# LABEL_2     -12.5064     2.2169  -5.641 2.82e-08 ***
+# LABEL_3     -22.2376     2.5452  -8.737  < 2e-16 ***
+# LABEL_7       3.8367     1.5585   2.462  0.01416 *
+# LABEL_9     -12.6620     2.2789  -5.556 4.48e-08 ***
+# LABEL_12      7.1609     2.1789   3.287  0.00109 **
+# LABEL_13     -5.5380     1.9021  -2.912  0.00376 **
+# LABEL_15      6.1994     2.4185   2.563  0.01066 *
+# LABEL_16      7.0774     2.1533   3.287  0.00108 **
+# LABEL_21    -16.8904     2.7239  -6.201 1.17e-09 ***
+# LABEL_23     14.0643     2.7166   5.177 3.26e-07 ***
+# LABEL_25     -8.9672     4.1883  -2.141  0.03275 *
+# LABEL_26    -11.4948     4.3091  -2.668  0.00789 **
+# LABEL_27     17.5986     3.8935   4.520 7.72e-06 ***
+# LABEL_28     -8.5283     3.9651  -2.151  0.03196 *
+# LABEL_31      7.7227     3.3973   2.273  0.02343 *
+# SITEHH       -0.5685     1.6813  -0.338  0.73539
+# SITEIOP       6.0230     2.7156   2.218  0.02701 *
+# SITEKirby     1.2137     4.8197   0.252  0.80129
+# SITENKI       6.0722     2.1591   2.812  0.00511 **
+# SITEOASIS    20.5323     2.2535   9.111  < 2e-16 ***
 # ---
 # Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #
-# Residual standard error: 12.45 on 521 degrees of freedom
-# Multiple R-squared:  0.6518,	Adjusted R-squared:  0.6358
-# F-statistic: 40.64 on 24 and 521 DF,  p-value: < 2.2e-16
+# Residual standard error: 11.65 on 503 degrees of freedom
+# Multiple R-squared:  0.6714,	Adjusted R-squared:  0.6584
+# F-statistic: 51.39 on 20 and 503 DF,  p-value: < 2.2e-16
 #
-# age prediction error =  -0.870453
+# Warning messages:
+# 1: Removed 2 rows containing missing values (stat_smooth).
+# 2: Removed 2 rows containing missing values (geom_point).
+# [ntustison@Nietzschean-Numerics Mon Aug 19 13:46:40] $
