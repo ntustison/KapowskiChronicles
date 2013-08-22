@@ -178,7 +178,7 @@ discernible advantage over univariate templates (i.e. T1-only) for the proposed 
 Critical to quantitative processing of MRI is the minimization of
 field inhomogeneity effects which produce artificial low frequency 
 intensity variation across the image.  Large-scale studies, such
-as the Alzheimer's Disease Neuroimaging Initiative (ADNI), employ
+as ADNI, employ
 perhaps the most widely used bias correction algorithm, N3 \citep{sled1998}, 
 as part of their standard protocol \citep{boyes2008}.
 
@@ -196,69 +196,24 @@ the popular open source Slicer software package for visualization and medical
 image computing \citep{fedorov2011}.
 
 N4 is used in two places during the individual subject processing (cf Figure
-\ref{fig:pipeline}).  Following conversion of the raw dicom T1-weighted image
-to Nifti format using our related \verb#Neuropipedream# set of raw image conversion
-and organization tools%
-\footnote{
-http://sourceforge.net/projects/neuropipedream/
-}, N4 is used to generate an initial bias corrected image for use in
+\ref{fig:pipeline}).  
+%
+%% We don't need the following comment because none of the data were dicim
+%% to begin with
+%
+%Following conversion of the raw dicom T1-weighted image
+%to Nifti format using our related \verb#Neuropipedream# set of raw image conversion
+%and organization tools%
+%\footnote{
+%http://sourceforge.net/projects/neuropipedream/
+%}, 
+Initially, it is used to generate an initial bias corrected image for use in
 brain extraction.  The input mask is created by adaptively thresholding 
 the background from the foreground using Otsu's algorithm \citep{otsu1979}.
 Following brain extraction, four-tissue segmentation involves iterating
 between bias field correction using the current pure tissue 
 probability map as a weight mask and then using that bias corrected image
-as input to the Atropos segmentation step (described in the next section). 
-
-\subsubsection{Atropos four-tissue segmentation}
-
-In \cite{avants2011a} we presented an open source $n$-tissue segmentation software tool
-(which we denote as ``Atropos'') attempting to distill 20+ years of active research in this area
-particularly some of its most seminal work (e.g. \cite{zhang2001,ashburner2005}). 
-Specification of prior probabilities includes spatially varying Markov Random Field modeling, 
-prior label maps, and prior probability maps typically derived from our template building 
-process.  Additional
-capabilities include handling of multivariate data, 
-partial volume modeling \citep{shattuck2001}, a memory-minimization mode,
-label propagation, a plug-n-play architecture for incorporation of novel likelihood models
-which includes both parametric and non-parametric models for both scalar and tensorial
-images, and alternative posterior formulations for different segmentation tasks.
-
-Due to the important interplay between segmentation and bias correction,
-we perform multiple N4 $\rightleftharpoons$ Atropos iterations.
-In order to better integrate Atropos and N4, we use  
-a pure tissue probability weight mask generated from the 
-posterior probabilities derived from the segmentation 
-process.  Given $N$ labels and the corresponding $N$
-posterior probability maps $\{ P_1, \ldots, P_N\}$ produced
-during the segmentation process, the N4 weight mask is 
-created at each N4 $\rightleftharpoons$ Atropos iteration from
-\begin{align}
-  P_{pure\,\,tissue}(\mathbf{x}) = \sum_{i=1}^N P_i(\mathbf{x}) \prod_{j=1, j \neq i}^N \left( 1 - P_j(\mathbf{x}) \right).
-\end{align}
-One of the key insights of the original N3 algorithm is the
-observation that inhomogeneities cause the intensity values of
-pure tissue peaks to spread in the intensity histogram as though
-convolved with a Gaussian.  A core contribution of N3 is the
-proposed corrective of deconvolving the intensity histogram to 
-accentuate the tissue peaks coupled with a spatial smoothing 
-constraint. The pure tissue probability mask
-weights more heavily the voxels corresponding to pure tissue 
-types (as determined by the segmentation) during the deconvolution process 
-while minimizing the contribution of regions such as the gray/white matter 
-interface where peak membership is ambiguous. 
-
-Atropos enables prior knowledge to guide the
-segmentation process where template-based priors are integrated into the optimization
-with a user-controlled weight.  Modulating the likelihood and prior contributions
-to the posterior probability is essential for producing adequate segmentations.
-Atropos weights the likelihood and priors according to
-\begin{align}
-P(y|x) \propto P(y|x)^{1-\alpha}P(x)^{\alpha}
-\end{align}
-where $\alpha$ is a user-selected parameter which weights the tradeoff between the likelihood and priors terms.
-In this work, we chose a weighting of $\alpha = 0.25$ 
-based on our historical interest in symmetry
-as well as experimentation with different parameter weights.
+as input to the Atropos segmentation step (described below). 
 
 \subsubsection{Brain extraction}
 
@@ -284,6 +239,58 @@ brain extraction algorithms including AFNI's \verb#3dIntracranial#
 \citep{dogdas2005} demonstrated that our combined
 registration/segmentation approach \citep{avants2010a} performs at the
 top level alongside BrainSuite (tuned) and FreeSurfer.
+
+
+
+\subsubsection{Atropos four-tissue segmentation}
+
+In \cite{avants2011a} we presented an open source $n$-tissue segmentation software tool
+(which we denote as ``Atropos'') attempting to distill 20+ years of active research in this area
+particularly some of its most seminal work (e.g. \cite{zhang2001,ashburner2005}). 
+Specification of prior probabilities includes spatially varying Markov Random Field modeling, 
+prior label maps, and prior probability maps typically derived from our template building 
+process.  Additional
+capabilities include handling of multivariate data, 
+partial volume modeling \citep{shattuck2001}, a memory-minimization mode,
+label propagation, a plug-n-play architecture for incorporation of novel likelihood models
+which includes both parametric and non-parametric models for both scalar and tensorial
+images, and alternative posterior formulations for different segmentation tasks.
+
+Due to the important interplay between segmentation and bias correction,
+we perform multiple N4 $\rightleftharpoons$ Atropos iterations.
+In order to better integrate Atropos and N4, we use  
+a pure tissue probability weight mask generated from the 
+posterior probabilities derived from the segmentation 
+step.  Given $N$ labels and the corresponding $N$
+posterior probability maps $\{ P_1, \ldots, P_N\}$ produced
+during segmentation, the N4 weight mask is 
+created at each N4 $\rightleftharpoons$ Atropos iteration from
+\begin{align}
+  P_{pure\,\,tissue}(\mathbf{x}) = \sum_{i=1}^N P_i(\mathbf{x}) \prod_{j=1, j \neq i}^N \left( 1 - P_j(\mathbf{x}) \right).
+\end{align}
+One of the key insights of the original N3 development is the
+observation that inhomogeneities cause the intensity values of
+pure tissue peaks to spread in the intensity histogram as though
+convolved with a Gaussian.  A core contribution of N3 is the
+proposed corrective of deconvolving the intensity histogram to 
+accentuate the tissue peaks coupled with a spatial smoothing 
+constraint. The pure tissue probability mask
+weights more heavily the voxels corresponding to pure tissue 
+types (as determined by the segmentation) during the deconvolution process 
+while minimizing the contribution of regions such as the gray/white matter 
+interface where peak membership is ambiguous. 
+
+Atropos enables prior knowledge to guide the
+segmentation process where template-based priors are integrated into the optimization
+with a user-controlled weight.  Modulating the likelihood and prior contributions
+to the posterior probability is essential for producing adequate segmentations.
+Atropos weights the likelihood and priors according to
+\begin{align}
+P(y|x) \propto P(y|x)^{1-\alpha}P(x)^{\alpha}
+\end{align}
+where $\alpha$ is a user-selected parameter which weights the tradeoff between the likelihood and priors terms.
+In this work, we chose a weighting of $\alpha = 0.25$ 
+based on our extensive experimentation with different parameter weights.
 
 
 \subsubsection{DiReCT (aka KellySlater/KellyKapowski) Cortical Thickness Estimation}
@@ -357,7 +364,11 @@ published protocol.
 Cortical label propagation to each individual subject for all data sets
 described below was performed using the PICSL multi-atlas joint label fusion
 algorithm described in \cite{wang2013} which recently led the competition
-at the MICCAI 2012 Grand Challenge on Multi-Atlas Labeling and is also 
+at the MICCAI 2012 Grand Challenge on Multi-Atlas Labeling%
+\footnote{
+https://masi.vuse.vanderbilt.edu/workshop2012/index.php/Main\_Page
+}
+and is also 
 distributed with the ANTs toolkit.  Cortical thickness values are averaged
 within each label for each subject using only the non-zero voxels from the cortical thickness map.
 
@@ -420,14 +431,14 @@ from multiple sites and with a mixture of 3T and
 1.5T T1 brain images.  Subjects in this dataset
 span the age range from 4 to 96 years old.  This strategy tests robustness to
 variation in head position, brain shape, defacing, image contrast, inhomogeneity, imaging
-artifacts and the broad variation in extracerebral tissue.  Failure
-can occur in initial brain extraction, segmentation, registration or
-bias correction, any of which will lead to inaccurate cortical
+artifacts, and the broad variation in extracerebral tissue.  Failure
+can occur in initial brain extraction, segmentation, registration, or
+bias correction, any of which will lead to an inaccurate cortical
 thickness measurement.                           
 
 In total, we processed 1205 T1-weighted images from four different
 public data sets to obtain the corresponding cortical thickness maps.                           
-The four data sets are: 
+The descriptions of the four data sets are as follows: 
                                           
 \paragraph{IXI}
 Initially, we began with 581 T1-weighted images from the IXI%
@@ -453,7 +464,7 @@ http://www.nitrc.org/projects/multimodal/
 }, 
 or more informally, the Kirby
 data set, was originally described in \cite{landman2011} consisting of 
-21 subjects (10 females, 11 males) and featuring a rich multiple modality and 
+21 subjects (10 females, 11 males) and features a rich multiple modality and 
 repeated acquisition schedule.
 
 \paragraph{NKI}
@@ -464,7 +475,7 @@ http://fcon\_1000.projects.nitrc.org
 was initiated on December 11, 2009 by various members of the MRI community
 seeking to form collaborative partnerships with imaging institutions for 
 sharing well-documented multimodal image sets accompanied by phenotypic data.
-This resulted in the Nathan Klein Institute (NKI)/Rockland sample
+One such contribution is the Nathan Klein Institute (NKI)/Rockland sample
 consisting of 186 T1-weighted
 images (87 females, 99 males).%
 \footnote{
@@ -479,11 +490,13 @@ http://www.oasis-brains.org/
 data set consisted of 433 T1-weighted images.  All were processed
 although 100 subjects were excluded due to probable Alzheimer's
 disease ($CDR > 0$) and 20 subjects had repeat scans
-for 313 individual subjects processed (118 males, 195 females).
+for 313 individual subjects included in the normal group statistical
+analysis (118 males, 195 females).
 Ages were between 18 and 96 and  
-all subjects are right-handed.  Additional processing is included
-with the distribution including bias corrected and segmented images
-(gray, white and CSF matters).  
+all subjects are right-handed.  
+%Additional processing is included
+%with the distribution including bias corrected and segmented images
+%(gray, white and CSF matters).  
 
 
 \begin{figure}
