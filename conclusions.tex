@@ -1,3 +1,143 @@
+\section{Discussion}
+In the absence of ground truth, we used data inspection, prediction of
+demographic variables and reproducibility to evaluate the ANTs
+cortical thickness pipeline as it applies to large-scale data.  Each
+result complements the other by relying upon different information
+provided by the pipeline.  Here, we discuss and contextualize each of
+the major evaluation points. 
+
+\subsection{Computation Time and Failure Rate}
+Computation time for the registration and segmentation components of
+the pipeline are substantial.  It is likely that nearly as reliable
+results can be obtained in much less time for many of the subjects in
+this study.  However, our interest in
+maximizing reliability and quality led us to employ parameters in the
+registration, segmentation and bias correction that are as robust as
+possible to differences in head position, the presence of large
+deformation between template and target brains and substantial
+inhomogeneity or artifact within the image content itself.  Several
+subjects (\textcolor{red}{list the subject identifiers here})
+provide examples of more difficult data from which we are able to
+extract meaningful segmentations and registrations despite the presence of a
+``garbage-in/garbage-out'' problem.  A subject of future study is
+determining an exact cut-off for the inclusion of such data.  We do not
+investigate this issue, which has concerned statisticians for over a
+century \cite{oldreferenceonrobuststatistics}, here. 
+
+\subsection{Reproducibility of Thickness Measurements}
+The OASIS dataset and the Kirby dataset allow us to test whether the same
+thickness values emerge from T1-weighted
+neuroimages collected on the same subject but at different times of
+the day or over a time separation within a few weeks.  Given that
+T1-weighted images are susceptible to short-term alterations due to
+blood flow \cite{DetrePaper,2006paper}, this strategy is not ideal.  However, related
+tools have looked at this question. An independent evaluation of the FreeSurfer pipeline shows good
+repeatability measurements \cite{jovicich2013}.  In comparison to our
+own, for example, the authors report that the X region shows Y error
+while we show Z error.  They find
+that .... and .....  The CLADA pipeline showed the ability to detect
+changes as small as 1 millimeter and showed good agreement with
+FreeSurfer \cite{nakamura2011}. ... pipelines show that ..... The
+CLASP pipeline shows error on the order of 0.5 millimeters \cite{kim2005}.   In summary, our results (though computed
+with a different cortical parcellation) are competitive with these
+methods.  Finally, some users may choose to segment and register
+with ANTs and subsequently employ any alternative (e.g. surface-based)
+method for thickness estimation.  Further work is needed by
+independent authors working on established pipelines (as in \cite{jovicich2013}) in order to
+better compare surface-based and volume-based thickness reliability
+across different populations and age ranges. 
+
+\subsection{BrainAge} 
+We used the ANTs cortical thickness pipeline as input to the BrainAge
+algorithm implemented according to \cite{franke2010}.  The original
+BrainAge algorithm was evaluated on a population 19-86 years of age
+with n=650 and produced a mean error of 5 years with a correlation
+between the testing subject age and real age of 0.92.  Our analysis,
+trained on half of our subjects and tested on the other half, produced
+an identical correlation and a mean absolute error of 6.4 years.
+While the age range in our study is overall similar, we have over
+61 subjects younger than 20 years and several dozen subjects with
+probable Alzheimer's Disease.  Our study also draws data from over
+8 different scan sites (FIXME-do we really know how many there
+are? i.e. in IXI and NKI and OASIS)  While the true mechanisms underlying BrainAge are unknown, the
+primary driving forces from an image processing perspective are accurate affine registration and gray
+matter probability images with tissue-derived information that is
+relevant to the subject's age.  Therefore, this sub-study serves as
+validation of the findings by \cite{franke2010} as well as the
+probabilistic segmentation and affine registration components of our
+pipeline.
+
+\subsection{General Linear Model Gender \& Age Prediction} 
+We also use a training and testing paradigm to evaluate whether a more
+traditional prediction model, general linear modeling, is capable of
+predicting age or gender from our data.  The general linear model has
+the advantage, in comparison to the relevance vector machine, of being
+interpretable.  That is, the models reveal the specific predictors
+that are most valuable.  
+
+\subsubsection{Gender} 
+The site variable does not emerge as an important predictor.  This
+suggests that our brain volume measurements (which are the most
+dominant predictor in the model) are not affected by data collection
+site.  Thickness measurements also enter the model.  However, there
+are several possible regions that may be used to improve the
+classification accuracy and these particular regions are not
+necessarily uniquely predictive.  Several components that encode an
+interaction between age and thickness as predictors of age also
+consistently enter the model.  This suggests that the aging process
+differs between males and females in agreement, generally, with
+previous work \cite{FIXMENeedReference}.
+
+\subsubsection{Age} 
+The interpretable linear regression model, based on cortical
+thickness, finds a correlation with age of 0.77 and a mean absolute
+error of 10 years.  The idea, here, is not to produce the best
+possible prediction (that was the purpose of BrainAge) but to identify
+whether putative regions associated with aging survive within our
+model and also to determine the degree to which data collection site
+impacts the prediction.  Indeed, our variable selection process
+includes SITE in the model suggesting that our analysis pipeline
+may not completely remove the effect of SITE on thickness
+measurements.  A second reason that SITE is included is that it does,
+indeed, covary with age.  That is, the Kirby and NKI subjects are
+overall younger than the OASIS and IXI subjects.  Thus, SITE is a
+confounding variable in this dataset.  Despite this issue, regions
+previously implicated in aging are included in the model such as
+occipital lobe, cingulate cortex, several temporal regions, inferior
+frontal gyrus (Broca's area) and pre and post-central gyri.  The
+superior and middle frontal gyri, known to be relatively preserved in
+aging, are absent from the model, as expected.  Thus, despite a
+significant impact of SITE on age prediction, biologically plausible
+cortical regions emerge in our traditional regression model for age.  
+
+\subsection{Network Small-Worldness}
+This result is more exploratory and shows the potential of large
+datasets such as this one in generating new descriptive and
+quantitative hypotheses about aging and gender.  
+
+\subsection{Brain Constellation Maps}
+Finally, there is no substitute for looking at one's data.  However,
+few researchers have the resources to support detailed 
+inspection of over 1200 subjects with cortical thickness
+measurements spread across a three-dimensional volume.  Therefore, we
+developed ``constellation maps'' which serve to quickly summarize the
+cortical thickness measurements across the entire population.   These
+maps are derived from the full subjects by cortex ( $n \times p$ ) matrix of thickness measurements
+across all subjects and all 32 NIREP regions.  Each column (NIREP
+region) is normalized in the range 0 to 1 across all subjects.
+Because of this processing, the constellation map allows one to
+easily identify non-normal (normal in the statistical sense)
+distributions of thickness in the population.  For instance, if a
+subject has a very thin cortex due to segmentation failure (e.g. all
+thickness values less than 1mm) this subject's particular star
+in the plot will become quite obviously compromised.  At the same
+time, if the population thickness is consistently estimated, we should
+be able to see, very easily, an age-related decrease in thickness.
+This is clearly visible in Figure~\ref{fig:}.  To clarify the
+usefulness of this plot, we include a constellation map from a
+previous run of the pipeline with an approximately 3\% failure rate in
+online materials---FIXME. 
+
 \section{Conclusions}
 
 Imaging biomarkers such as cortical thickness play an 
