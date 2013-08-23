@@ -39,7 +39,7 @@ calculateCorrelationMatrix <- function( mat, weights, nuis )
 ##
 #################################################################
 
-maximumNumberOfPermutations <- 1
+maximumNumberOfPermutations <- 1000
 sigma <- 5
 ages <- seq( 10, 90, by = 5 )
 
@@ -99,7 +99,7 @@ colnames( networkAll ) <- ages
 #  begin rendering code
 #
 
-rgl.bg( color = "white" )
+# rgl.bg( color = "white" )
 
 template <- antsImageRead( '../glasshead_female.nii.gz', 3 )
 brain <- antsImageRead( '../glassbrain_female.nii.gz', 3 )
@@ -110,17 +110,17 @@ centroids <- LabelImageCentroids( nirepLabels, physical = TRUE )
 # template <- maskImage( template, leftright, 2 )
 # brain <- maskImage( brain, leftright, 2 )
 
-id <- rotationMatrix( 0, 0, 1, 0)
-lateralLeft <- rotationMatrix( pi/2, 0, -1, 0 ) %*% rotationMatrix( pi/2, -1, 0, 0 )
-frontal <- rotationMatrix( pi*3/2, 1,  0, 0 )  # %*% rotationMatrix( pi/2, -1, 0, 0 )
-lateralRight <- rotationMatrix( pi/2, 0, 1, 0 ) %*% rotationMatrix( pi/2, -1, 0, 0 )
-par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-mysurf <- renderSurfaceFunction( list( template,brain ), alphasurf = c( 0.3, 0.3 ),
-  surfval = 0.5, smoothsval = 1.5, alphafunc = 1, mycol = "cadetblue1" )
-
-par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+# id <- rotationMatrix( 0, 0, 1, 0)
+# lateralLeft <- rotationMatrix( pi/2, 0, -1, 0 ) %*% rotationMatrix( pi/2, -1, 0, 0 )
+# frontal <- rotationMatrix( pi*3/2, 1,  0, 0 )  # %*% rotationMatrix( pi/2, -1, 0, 0 )
+# lateralRight <- rotationMatrix( pi/2, 0, 1, 0 ) %*% rotationMatrix( pi/2, -1, 0, 0 )
+# par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+# mysurf <- renderSurfaceFunction( list( template,brain ), alphasurf = c( 0.3, 0.3 ),
+#   surfval = 0.5, smoothsval = 1.5, alphafunc = 1, mycol = "cadetblue1" )
+#
+# par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+# par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+# par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
 
 #
 # end rendering code
@@ -220,43 +220,43 @@ for( age in ages )
 
       ######## now females ###########
 
-      gender <- samplesSex == 2
-      temp <- calculateCorrelationMatrix( thicknessResiduals[gender,], cweights[gender] )
-      femaleGraph <- makeGraph( temp, gdensity )
-
-      renderNetwork( femaleGraph$adjacencyMatrix, locations )
-
-      filename <- paste0( '../figs/temp_female_community_' , age, '.pdf' )
-      pdf( filename )
-      plot( femaleGraph$walktrapcomm, femaleGraph$mygraph, layout = layout.fruchterman.reingold,
-            vertex.size = 15,
-            vertex.label = corticalLabels, vertex.label.cex = 0.75, vertex.label.font = 2 )
-      dev.off()
-
-      filename <- paste0( '../figs/temp_female_community_X_' , age, '.pdf' )
-      pdf( filename )
-      V( femaleGraph$mygraph )$name <- corticalLabels
-      dendPlot( walktrap.community( femaleGraph$mygraph ), mode = "phylo", type = "fan", edge.width = 2,
-        show.tip.label = TRUE, x.lim = c( -30, 30 ), no.margin = TRUE, font = 2, label.offset = 1
-         )
-#       axisPhylo()
-      dev.off()
-
-      filename <- paste0( '../figs/temp_female_network_F_', age, '.png' )
-      par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      par3d( userMatrix = frontal, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      rgl.snapshot( filename )
-
-      filename <- paste0( '../figs/temp_female_network_L_', age, '.png' )
-      par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      rgl.snapshot( filename )
-      filename <- paste0( '../figs/temp_female_network_R_', age, '.png' )
-
-      par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
-      rgl.snapshot( filename )
-      rgl.pop()
+#       gender <- samplesSex == 2
+#       temp <- calculateCorrelationMatrix( thicknessResiduals[gender,], cweights[gender] )
+#       femaleGraph <- makeGraph( temp, gdensity )
+#
+#       renderNetwork( femaleGraph$adjacencyMatrix, locations )
+#
+#       filename <- paste0( '../figs/temp_female_community_' , age, '.pdf' )
+#       pdf( filename )
+#       plot( femaleGraph$walktrapcomm, femaleGraph$mygraph, layout = layout.fruchterman.reingold,
+#             vertex.size = 15,
+#             vertex.label = corticalLabels, vertex.label.cex = 0.75, vertex.label.font = 2 )
+#       dev.off()
+#
+#       filename <- paste0( '../figs/temp_female_community_X_' , age, '.pdf' )
+#       pdf( filename )
+#       V( femaleGraph$mygraph )$name <- corticalLabels
+#       dendPlot( walktrap.community( femaleGraph$mygraph ), mode = "phylo", type = "fan", edge.width = 2,
+#         show.tip.label = TRUE, x.lim = c( -30, 30 ), no.margin = TRUE, font = 2, label.offset = 1
+#          )
+# #       axisPhylo()
+#       dev.off()
+#
+#       filename <- paste0( '../figs/temp_female_network_F_', age, '.png' )
+#       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       par3d( userMatrix = frontal, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       rgl.snapshot( filename )
+#
+#       filename <- paste0( '../figs/temp_female_network_L_', age, '.png' )
+#       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       par3d( userMatrix = lateralLeft, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       rgl.snapshot( filename )
+#       filename <- paste0( '../figs/temp_female_network_R_', age, '.png' )
+#
+#       par3d( userMatrix = id, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       par3d( userMatrix = lateralRight, windowRect = c( 0, 0, 512, 512 ), zoom = 0.7 )
+#       rgl.snapshot( filename )
+#       rgl.pop()
       }
 
     if( permutation == 0 )
@@ -265,7 +265,7 @@ for( age in ages )
       mysign <- as.numeric( initialNetworkDifference > 0 )
       mysign[mysign == 0] <- -1
       } else {
-      permutationCount <- permutationCount + as.numeric( ( networkDifference * mysign ) > initialNetworkDifference )
+      permutationCount <- permutationCount + as.numeric( ( networkDifference * mysign ) >= initialNetworkDifference )
       }
     setTxtProgressBar( pb, permutation )
     }
@@ -292,7 +292,7 @@ for( age in ages )
 
 corrsPlotData <- data.frame( weightedAges = weightedAges, correlationValues = corrs )
 corrsPlot <- ggplot( corrsPlotData, aes( x = weightedAges, y = correlationValues ) ) +
-             geom_point( colour = "darkred", size = 4, alpha = 0.75 ) +
+             geom_point( colour = "darkred", size = 4, alpha = 0.5 ) +
              stat_smooth( colour = "navyblue", formula = y ~ 1 + x + I(x^2) + I(x^3) + I(x^4), method = "lm",
                           size = 1, n = 1000, level = 0.95, se = TRUE, fullrange = TRUE, fill = 'black', alpha = 0.25 ) +
              scale_x_continuous( "Age", breaks = seq( 10, 80, by = 10 ), labels = seq( 10, 80, by = 10 ), limits = c( 10, 80 ) ) +
@@ -364,77 +364,53 @@ ggsave( filename = "allNetwork.pdf", plot = networkAllPlot, width = 10, height =
 # print( p.adjust( pvals, method = 'BH' ) )
 #
 
-#   |======================================================================| 100%
-# No functional images--only plotting surface images.
 #   |======================================================================| 100%Age: 10
-# [1] "L superior frontal 0.410526315789474 0.016"
-# [1] "R superior parietal 0.4 0.048"
+# [1] "L superior frontal 0.410526315789474 0.014"
+# [1] "R superior parietal 0.4 0.042"
 #   |======================================================================| 100%Age: 15
-# [1] "R superior frontal 0.326450742240216 0.012"
+# [1] "L superior frontal 0.284954811270601 0.046"
+# [1] "R superior frontal 0.326450742240216 0.004"
 # [1] "L inferior 0.330555555555555 0.027"
 #   |======================================================================| 100%Age: 20
-# [1] "R insula 1 0"
-# [1] "R superior frontal 0.311038961038961 0.023"
+# [1] "R superior frontal 0.311038961038961 0.013"
 #   |======================================================================| 100%Age: 25
-# [1] "L parahippocampal 0 0.015"
-# [1] "R parahippocampal 0.333333333333333 0.015"
 #   |======================================================================| 100%Age: 30
-# [1] "L superior temporal 1 0"
-# [1] "L inferior 0.417582417582418 0.042"
-# [1] "L orbital frontal 0.5 0.005"
-# [1] "L superior parietal 0.6 0.002"
+# [1] "L superior temporal 1 0.022"
+# [1] "L inferior 0.417582417582418 0.045"
+# [1] "L orbital frontal 0.5 0.003"
+# [1] "L superior parietal 0.6 0.003"
 #   |======================================================================| 100%Age: 35
-# [1] "L superior temporal 0.666666666666667 0.033"
-# [1] "R superior temporal 0.80952380952381 0.012"
+# [1] "R superior temporal 0.80952380952381 0.01"
+# [1] "L inferior parietal 0.265079365079365 0.039"
 #   |======================================================================| 100%Age: 40
+# [1] "R infero temporal 0.214869281045752 0.044"
 # [1] "R inferior parietal 0.678571428571429 0.001"
 #   |======================================================================| 100%Age: 45
-# [1] "L parahippocampal 1 0"
-# [1] "R superior frontal 0.334848484848485 0.024"
-# [1] "R inferior 0.423931623931624 0.016"
+# [1] "R superior frontal 0.334848484848485 0.022"
+# [1] "R inferior 0.423931623931624 0.021"
 #   |======================================================================| 100%Age: 50
-# [1] "R parahippocampal 0.566666666666667 0.03"
-# [1] "R superior frontal 0.335930735930736 0.015"
+# [1] "R parahippocampal 0.566666666666667 0.026"
+# [1] "R superior frontal 0.335930735930736 0.017"
 #   |======================================================================| 100%Age: 55
-# [1] "L occipital 0.555555555555556 0.018"
-# [1] "R occipital 0.866666666666667 0.004"
-# [1] "L insula 0 0.046"
+# [1] "L occipital 0.555555555555556 0.026"
+# [1] "R occipital 0.866666666666667 0.009"
 #   |======================================================================| 100%Age: 60
-# [1] "R occipital 0.722222222222222 0"
-# [1] "L insula 0 0.011"
-# [1] "R insula 0 0.048"
-# [1] "R orbital frontal 0.435087719298246 0.024"
+# [1] "R occipital 0.722222222222222 0.001"
+# [1] "R orbital frontal 0.435087719298246 0.016"
 #   |======================================================================| 100%Age: 65
-# [1] "L insula 0 0.009"
-# [1] "R insula 0 0.02"
 #   |======================================================================| 100%Age: 70
-# [1] "L insula 0 0.028"
-# [1] "L parahippocampal 0.833333333333333 0.042"
 #   |======================================================================| 100%Age: 75
-#  [1] "R parahippocampal 0.833333333333333 0.018"
-#  [1] "L frontal pole 0.395238095238095 0.021"
-#  [1] "L inferior parietal 0.329365079365079 0.033"
+# [1] "R parahippocampal 0.833333333333333 0.021"
+# [1] "L frontal pole 0.395238095238095 0.008"
+# [1] "L inferior parietal 0.329365079365079 0.049"
 #   |======================================================================| 100%Age: 80
-#  [1] "L middle frontal 0.39047619047619 0.022"
-#  [1] "R inferior 0.533333333333333 0.003"
-#  [1] "R inferior parietal 0.335064935064935 0.005"
-#  [1] "R postcentral 0.297727272727273 0.016"
+# [1] "L middle frontal 0.39047619047619 0.017"
+# [1] "R inferior 0.533333333333333 0.001"
+# [1] "R inferior parietal 0.335064935064935 0.003"
+# [1] "R postcentral 0.297727272727273 0.018"
 #   |======================================================================| 100%Age: 85
-#  [1] "R inferior parietal 0.256818181818182 0.023"
+# [1] "R inferior parietal 0.256818181818182 0.017"
 #   |======================================================================| 100%Age: 90
-#  [1] "R occipital 1 0"
-#  Warning messages:
-#  1: Removed 4 rows containing missing values (stat_smooth).
-#  2: In predict.lm(model, newdata = data.frame(x = xseq), se = se, level = level,  :
-#   prediction from a rank-deficient fit may be misleading
-#  3: In qt((1 - level)/2, df) : NaNs produced
-#  4: Removed 4 rows containing missing values (geom_point).
-#  5: Removed 391 rows containing missing values (geom_path).
-#  Using CorticalLabels as id variables
-#  Using CorticalLabels as id variables
-#  Using CorticalLabels as id variables
-#  Using CorticalLabels as id variables
-
 
 
 

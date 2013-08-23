@@ -59,8 +59,8 @@ for( i in 1:32 )
 
   thickPlot <- ggplot( plotData, aes( x = Age, y = Thickness, group = Gender ) ) +
                stat_smooth( aes( group = Gender, colour = Gender ), formula = y ~ 1 + x + I(x^2) , method = "lm", size = 1, n = 1000, level = 0.95, se = TRUE, fullrange = TRUE, fill = 'black', alpha = 0.5 ) +
-               geom_point( data = plotData, aes( colour = Gender, shape = Gender ), size = 3, alpha = 0.25 ) +
-               scale_x_continuous( "Age (years)", breaks = seq( 10, 80, by = 10 ), labels = seq( 10, 80, by = 10 ), limits = c( 10, 80 ) ) +
+               geom_point( data = plotData, aes( colour = Gender, shape = Gender ), size = 3, alpha = 0.5 ) +
+               scale_x_continuous( "Age (years)", breaks = seq( 10, 90, by = 10 ), labels = seq( 10, 90, by = 10 ), limits = c( 10, 90 ) ) +
 #                scale_y_continuous( "Thickness (mm)", breaks = seq( -1, 1, by = 1 ), labels = seq( -1, 1, by = 1 ), limits = c( -1, 1 ) ) +
                scale_y_continuous( "Thickness (mm)", breaks = seq( 0, 6, by = 1 ), labels = seq( 0, 6, by = 1 ), limits = c( 0, 6 ) ) +
                scale_colour_manual( values = c( male_color, female_color ), breaks = c( 1, 2 ), labels = c( "Male", "Female" ) ) +
