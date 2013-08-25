@@ -1,4 +1,6 @@
 library( ggplot2 )
+library( ANTsR )
+library( visreg )
 
 ############################################
 #
@@ -69,3 +71,47 @@ for( i in 1:32 )
                ggtitle( paste( "Cortical thickness (", corticalLabels[i], ")", sep = "" ) )
   ggsave( filename = paste0( "../figs/label", i, "_results.pdf" ), plot = thickPlot, width = 8, height = 6, units = 'in' )
   }
+
+# =============================================================
+# this brings out the specific age - thickness relationship
+# and also computes the "peak age" which is interesting ....
+# =============================================================
+
+thicknessValues <-as.matrix( resultsCombined[,6:37] )
+meanthickness<-apply(thicknessValues,FUN=mean,MARGIN=1)
+demog<-data.frame( resultsCombined , meanthickness )
+mysub<-meanthickness>1. & meanthickness<4 & demog$AGE > 1
+subdemog<-subset(demog,mysub)
+myform1<-paste("meanthickness ~ 1 + SEX + SITE + VOLUME ")
+myform2<-paste(myform1," + I(AGE) + I(AGE^2) + I(AGE^4)  ")
+mdl1<-lm( as.formula(myform1),data=subdemog)
+mdl2<-lm( as.formula(myform2),data=subdemog)
+pv<-anova(mdl1,mdl2)$P[[2]]
+visreg(mdl2, xvar=c("AGE","SEX"),main=as.character(pv))
+
+for ( x in 6:37 ) {
+ myform1<-paste(colnames( resultsCombined )[x]," ~ 1 + SEX + SITE + VOLUME ")
+ myform2<-paste(myform1," + I(AGE) + I(AGE^2)  ")
+ print(myform2)
+ mdl1<-lm( as.formula(myform1),data=subdemog)
+ mdl2<-lm( as.formula(myform2),data=subdemog)
+ thresid<-residuals( lm( myform1 ,data=subdemog) )
+ mdl3<-lm( thresid ~ 1 + I(AGE) + I(AGE^2) , data=subdemog)
+ mydf<-data.frame(AGE=c(10:160/2) )
+ pa<-predict( mdl3 , newdata=mydf )
+ peakage<-mydf$AGE[ which.max( pa ) ]
+ pv<-anova(mdl1,mdl2)$P[[2]]
+ visreg(mdl2, xvar=c("AGE","VOLUME"),main=paste(peakage,as.character(pv)))
+ }
+
+
+
+
+
+
+
+
+
+
+
+
