@@ -16,4 +16,9 @@ bash ${ANTSPATH}antsCorticalThickness.sh -d 2 \
   -w 0.25 \
   -n 3 \
   -k 0 \
+  -b Aristotle[1] \
+  -l 1[1.0,0.5] \
+  -l 2[1.0,0.5] \
+  -l 3[1.0,0.5] \
+  -l 4[5.0,0.25] \
   -o ${OUT_DIR}antsCorticalThicknessExample_
