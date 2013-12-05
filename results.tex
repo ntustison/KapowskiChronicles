@@ -4,7 +4,16 @@ labeling to evaluate large-scale performance.  We therefore sought to
 minimize failure rate, quantify the repeatability of cortical
 thickness measures, test accuracy in BrainAGE \citep{franke2010}, and
 determine whether the DiReCT pipeline reveals biologically plausible relationships
-between the cortex, age, and gender.  Collectively, these surrogate
+between the cortex, gender,%
+\footnote{
+We recognize the distinction often made between ``sex'' and ``gender'' 
+(cf {\tt http://www.who.int/gender/whatisgender/en/}).
+As the demographic information collected during the course of the imaging studies 
+is presumably self-reported, we assume that most self-identify in terms of 
+gender and, therefore, use the term ``gender'' in image data
+descriptions.
+}
+and age.  Collectively, these surrogate
 measurements allow us to establish data-derived performance standards.
 
 \subsection{Computation Time and Failure Rate}
@@ -23,8 +32,11 @@ subject for 16 serial image registrations and application of the joint label fus
 All processing on the UVA cluster was set to be single-threaded with a maximum requested memory footprint of 8 GB.  
 }  
 Average thickness values were tabulated per subject for each of the
-32 NIREP labels.  Cerebral volumes for each subject derived from the brain 
-extraction step were also calculated.  All these data were written to separate csv
+32 NIREP labels.  Brain volumes (cerebrum only excluding the brain stem and
+cerebellum) for each subject derived from the brain 
+extraction step were also calculated and are used as the $VOLUME$ 
+variable measurement in the evaluations below.  
+All these data were written to separate csv
 files corresponding to data set for subsequent 
 analysis (also included with the scripts).  Visual sample results from each data set are provided in 
 Figure \ref{fig:sampleResults}.
@@ -110,7 +122,7 @@ located in the csv files {\tt labelresultsK\_pairwise.csv} (Kirby) and
 show regional reproducible thickness measurements, $T$, in terms of the
 variability error:
 \begin{align}
-\varepsilon = \frac{|T_{scan} + T_{rescan}|}{0.5 \times (T_{scan} + T_{rescan})}.
+\varepsilon = \frac{|T_{scan} - T_{rescan}|}{0.5 \times (T_{scan} + T_{rescan})}.
 \end{align}
 Error values (including absolute mean differences) for the 32 NIREP regions for both the Oasis and Kirby reproducibility data sets
 are given in Table \ref{table:error}.  We also calculated the intraclass 
@@ -228,7 +240,12 @@ The R scripts for this analysis are {\tt genderThicknessRegression.R} and
 
 We first tested the ability of regional thickness and cerebral volume to determine
 gender.
-In the notation of \cite{wilkinson1973}, the initial binomial 
+In the notation of \cite{wilkinson1973},%
+\footnote{
+For consistency with R and other computational packages, we replace `$\cdot$'  
+with `:' to denote all interaction terms.
+}
+ the initial binomial 
 generalized linear model is
 \begin{align}
   GENDER \sim AGE &+ VOLUME + \sum_{i=1}^{32} T(REGION_{i}) \\ \nonumber
@@ -287,13 +304,12 @@ Measures such as the
 clustering coefficient (or local transitivity) and mean shortest path length
 \citep{watts1998}, are used to characterize networks in terms of their 
 small-worldness.
-%Although the principal purpose of this work is to showcase the 
-%publicly available ANTs cortical thickness pipeline and its performance
-%on open data
-%(and not necessarily explore the deeper neuroscience implications of 
-%the results), 
-We use the compiled cortical thickness data to briefly sketch
-the longitudinal variation in gender-based small-world networks of the
+Although the principal purpose of this work is to showcase the 
+publicly available ANTs cortical thickness pipeline and its performance
+on open data
+(and not necessarily explore the deeper neuroscience implications of 
+the results), we use the compiled cortical thickness data to briefly sketch
+the temporal variation in gender-based small-world networks of the
 brain.%
 \footnote{
 The R scripts for this analysis are {\tt genderStructuralConnectivity.R}.  Data are located in the following csv files: 
@@ -302,6 +318,9 @@ The R scripts for this analysis are {\tt genderStructuralConnectivity.R}.  Data 
 {\tt labelresultsN.csv} (NKI), and
 {\tt labelresultsO.csv} (Oasis).
 }
+These results demonstrate potential future exploration of the
+neuroscience-related implications of our proposed pipeline complete
+with the requisite tools.
 
 At each age between 10 and 90 years (in increments of 5), the weighted correlation
 matrix for each gender is calculated from the thickness residuals 
@@ -312,7 +331,7 @@ is constructed from the correlation matrix where the graph density is specified 
 \end{align}
 Informally, this quantifies the proportion of edges between the neighbors of $v_i$ to the total number of possible edges in the neighborhood to quantify the proximity of the neighborhood to a complete graph.  
 
-Longitudinal transitivity gender differences were calculated with statistical
+Age-wise transitivity gender differences were calculated with statistical
 significance determined from permutation testing ($n = 1000$ permutations).  These statistically significant regional results are given in Table \ref{table:genderDifference}.  
 We also visualize these connectivity networks for both female and male within the brain
 space and as phylogenetic radial trees in Figures \ref{fig:femaleVisualNetworks} and \ref{fig:maleVisualNetworks}, respectively.
@@ -462,6 +481,10 @@ distribution with data set.  Additionally, for each subject we
 test for non-normality using the Shapiro-Francia normality test 
 \citep{royston1993} which
 provides an additional measurement for quality assessment.
+For our work, which is the largest cortical thickness study of 
+which we are aware, non-normality (per Shapiro-Francia) of the 
+cortical thickness residuals was an excellent indicator of processing 
+failures  during the tuning of the pipeline.
 
 %  Nick:  We'll do all this later.
 %\textcolor{red}{FIXME---should add an ``index'' to the constellation
@@ -476,7 +499,9 @@ provides an additional measurement for quality assessment.
   \begin{tabular}{c}
   \includegraphics[width=180mm]{thicknessStarsIndividualsNew.pdf} 
   \end{tabular}
-  \caption{Brain constellation map of the entire study cohort ordered left to right by age.  Thickness residuals for each of the 32 regions are rendered using star plots with color indicating the specific data set (IXI = red, Kirby = green, NKI = blue, Oasis = orange).  For quickly determining obvious processing failures, the figure can be magnified.  Below each subject is the ID, age, and a possible `*' denoting a significant result ($< 0.05$) of the Shapiro-Francia normality test indicating non-normality. 
+  \caption{Brain constellation map of the entire study cohort ordered left to right by age.  Thickness residuals for each of the 32 regions are rendered using star plots with color indicating the specific data set (IXI = red, Kirby = green, NKI = blue, Oasis = orange).  For quickly determining obvious processing failures, the figure can be magnified.  Below each subject is the ID, age, and a possible `*' denoting a significant result ($< 0.05$) of the Shapiro-Francia normality test indicating non-normality.
+Note that previous incarnations of the constellation map were used to refine the pipeline such that 
+the current version is free from this particular indication of processing failures.
   }
   \label{fig:stars}
 \end{figure*}

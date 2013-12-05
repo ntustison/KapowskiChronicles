@@ -26,11 +26,12 @@ encapsulated in the shell script \verb#antsCorticalThickness.sh# with
 subcomponents delegated to \verb#antsBrainExtraction.sh# 
 and \verb#antsAtroposN4.sh#.  A representative script command 
 is reproduced in Listing \ref{listing:antsCorticalThickness} for
-a single Oasis subject.
-Extensive tuning produced
-optimal parameters for processing the data sets
-described in this work and should be extendable to 
-other data sets.
+a single Oasis subject to demonstrate the simplicity and
+mature status of what we propose in this work.  Out of all 
+possible parameter combinations, extensive tuning produced
+a single set of parameters for processing all the data
+described in this work allowing other researchers easy access
+to the performance showcased in the following sections.
 
 \lstset{frame = htb,
         framerule = 0.25pt,
@@ -50,7 +51,8 @@ other data sets.
         tabsize = 2,
         language=,
         floatplacement=!h,
-        caption={\small \baselineskip 12pt Command line call for a single Oasis subject which is representative of the calls used for each subject
+        caption={\small \baselineskip 12pt Command line call for a single Oasis subject which is
+        representative of the calls used for each subject
         of the evaluation study.  Option descriptions are provided by invoking the
         help option, i.e. `{\tt antsCorticalThickness.sh -h}.'
         },
@@ -219,13 +221,17 @@ as input to the Atropos segmentation step (described below).
 
 Brain extraction using ANTs combines template building, high-performance
 brain image registration, and Atropos with topological refinements.  
-An optimal template for brain extraction is 
-generated offline using labeled brain data.  
-In this work we use each cohort to produce a population-specific template 
-(cf Figure \ref{fig:template}) and corresponding brain and four-tissue probability
-maps (cf Figure \ref{fig:templateMasks}). 
-
-  The warped brain probability map is thresholded at 0.5 and the resulting mask is dilated
+An optimal template \cite{avants2010} is first constructed using labeled 
+brain data (e.g. LPBA40).  Template construction iterates between estimating
+the optimal template and registering each subject to the optimal template.
+Thus, the construction produces the transforms necessary to warp each 
+subject's labeling to the template space.  We use these transformed labelings
+to create a probabilistic estimate of the brain mask for the template.
+In this work, we perform the additional step of building separate templates
+for each cohort and propagate the probabilistic mask to each cohort template
+using registration of the T1-weighted templates (cf Figure \ref{fig:template}).
+Further refinement include thresholding the warped brain probability map 
+at 0.5 and dilated the resulting mask
 with a radius of 2.  Atropos is used to generate an initial three-tissue segmentation estimate within the mask
 region.  Each of the three tissue labels undergo specific morphological operations which are then
 combined to create a brain extraction mask for use in the rest of the
@@ -291,6 +297,15 @@ P(x|y) \propto P(y|x)^{1-\alpha}P(x)^{\alpha}
 where $\alpha$ is a user-selected parameter which weights the tradeoff between the likelihood and priors terms.
 In this work, we chose a weighting of $\alpha = 0.25$ 
 based on our extensive experimentation with different parameter weights.
+
+Since cortical thickness estimation only requires the cortical gray
+and white matters, the deep gray and white matters 
+(both labelings and posterior maps) are combined to a single 
+``white matter'' set.  This new set combined with the cortical
+gray matter results are the only results from the segmentation
+step used in the DiReCT algorithm (described below).  Thus, 
+accurate differentiation between white matter and deep gray
+matter is not necessary for accurate cortical thickness measurements. 
 
 
 \subsubsection{DiReCT (aka KellySlater/KellyKapowski) Cortical Thickness Estimation}
@@ -359,7 +374,9 @@ is an ongoing framework for evaluating image registration algorithms \citep{chri
 The initial data set introduced into the project consists of 
 16 (8 male and 8 female) high resolution skull-stripped brain 
 data with 32 cortical labels (cf Table \ref{table:nirep_labels}) manually drawn using a 
-published protocol.
+published protocol.  Reasons for using the NIREP data include
+public availability, high resolution T1-weighted images, and 
+the number of subjects for use with our label propagation scheme.
 
 Cortical label propagation to each individual subject for all data sets
 described below was performed using the PICSL multi-atlas joint label fusion
@@ -540,7 +557,7 @@ The initial Open Access Series of Imaging Studies (OASIS)%
 http://www.oasis-brains.org/
 }
 data set consisted of 433 T1-weighted images.  All were processed
-although 100 subjects were excluded due to probable Alzheimer's
+although 100 subjects were excluded from analysis due to probable Alzheimer's
 disease ($CDR > 0$) and 20 subjects had repeat scans
 for 313 individual subjects included in the normal group statistical
 analysis (118 males, 195 females).
