@@ -2,15 +2,15 @@ library( kernlab )
 library( randomForest )
 library( ggplot2 )
 
-trainingData <- read.csv( "../trainingBrainSegmentationPosteriors2Projections.csv" )
-testingData <- read.csv( "../testingBrainSegmentationPosteriors2Projections.csv" )
-# trainingData <- read.csv( "../trainingCorticalThicknessProjections.csv" )
-# testingData <- read.csv( "../testingCorticalThicknessProjections.csv" )
+trainingDataOriginal <- read.csv( "../xtrainingBrainSegmentationPosteriors2Projections.csv" )
+testingDataOriginal <- read.csv( "../xtestingBrainSegmentationPosteriors2Projections.csv" )
+# trainingDataOriginal <- read.csv( "../trainingCorticalThicknessProjections.csv" )
+# testingDataOriginal <- read.csv( "../testingCorticalThicknessProjections.csv" )
 
 # Remove ID, gender, and site
 
-trainingData <- trainingData[, 3:ncol( testingData )]
-testingData <- testingData[, 3:ncol( testingData )]
+trainingData <- trainingDataOriginal[, 3:ncol( testingDataOriginal )]
+testingData <- testingDataOriginal[, 3:ncol( testingDataOriginal )]
 
 brainAgeVM <- rvm( AGE ~ ., data = trainingData, type = "regression",
                     kernel = "laplacedot",
@@ -28,7 +28,7 @@ meanerr <- mean( abs(  testingData$AGE - predictedAge ) )
 
 cat( "Correlation (true vs. predicted age): ", correlation, ", mean error ", meanerr , "\n", sep = '' )
 
-plotData <- data.frame( TrueAge = testingData$AGE, PredictedAge = predictedAge )
+plotData <- data.frame( TrueAge = testingData$AGE, PredictedAge = predictedAge, Site = testingDataOriginal$SITE )
 
 brainAgeRegression <- lm( testingData$AGE ~ 1 + predictedAge )
 
@@ -37,12 +37,12 @@ annotation <- paste0( "r = ", signif( correlation, 2 ), ", mean error = ", signi
 brainAgePlot <- ggplot( plotData, aes( x = TrueAge, y = PredictedAge ) ) +
                 stat_smooth( colour = "navyblue", formula = y ~ 1 + x, method = "lm",
                   size = 1, n = 1000, level = 0.95, se = TRUE, fullrange = TRUE, fill = 'black', alpha = 0.5 ) +
-                geom_point( aes( colour = "darkred" ), size = 4, alpha = 0.5 ) +
+                geom_point( aes( colour = Site ), size = 4, alpha = 0.5 ) +
                 scale_x_continuous( "True age (years)", breaks = seq( 0, 100, by = 10 ), labels = seq( 0, 100, by = 10 ), limits = c( 0, 100 ) ) +
                 scale_y_continuous( "Predicted age (years)", breaks = seq( 0, 100, by = 10 ), labels = seq( 0, 100, by = 10 ), limits = c( 0, 100 ) ) +
-                scale_colour_manual( labels = annotation, values = "darkred" ) +
-                theme( legend.justification = c( 1, 0 ), legend.position = c( 1, 0 ), legend.title = element_blank(), legend.background = element_blank(), legend.key = element_blank(), legend.text = element_text( colour = 'navyblue' ) ) +
-                guides( colour = guide_legend( override.aes = list( shape = NA ) ), keywidth = 0 )
+#                 scale_colour_manual( labels = annotation, values = "darkred" ) +
+                theme( legend.justification = c( 1, 0 ), legend.position = c( 1, 0 ), legend.title = element_blank(), legend.background = element_blank(), legend.key = element_blank(), legend.text = element_text( colour = 'navyblue' ) )
+#                 guides( colour = guide_legend( override.aes = list( shape = NA ) ), keywidth = 0 )
 ggsave( filename = paste( "../brainAgeBrainSegmentationPosteriors2.pdf", sep = "" ), plot = brainAgePlot, width = 6, height = 6, units = 'in' )
 
 
