@@ -4,8 +4,9 @@
   \includegraphics[width=180mm]{repeatabilityLeft.pdf} \\
   \includegraphics[width=180mm]{repeatabilityRight.pdf}
   \end{tabular}
-  \caption{Percent error variability for both ANTs and FreeSurfer pipelines
-           over the left and right hemispheres within the 62 regions defined by the
+  \caption{Percent error variability for both ANTs and FreeSurfer pipelines 
+           over the left and right hemispheres of both the Kirby and Oasis
+           data subsets within the 62 regions defined by the
            Desikan-Killiany-Tourville atlas.  Both methods demonstrate good repeatability
            qualities.
            }
@@ -40,7 +41,7 @@ usability.
 Repeat scans of 40 subjects (20 Kirby subjects and 20 Oasis subjects) were 
 used to determine the repeatability of regional cortical thickness 
 measurements, $T$.  Similar to the assessment given in \cite{jovicich2013}, we
-demonstrate this in terms of the variability error:
+demonstrate this in terms of the percent variability error:
 \begin{align}
 \varepsilon = \frac{|T_{scan} - T_{rescan}|}{0.5 \times (T_{scan} + T_{rescan})}.
 \end{align}
@@ -63,7 +64,8 @@ both ANTs and FreeSurfer.
 Despite good repeatability with both ANTs and FreeSurfer, such measures
 do not provide an assessment of accuracy or even relative utility.  For example, 
 strong priors can yield good repeatability measures but potentially at the expense 
-of data fidelity.  Given that ground truth is not available for 
+of data fidelity thus compromising the quality of models (statistical or otherwise) 
+built from such results.  Given that ground truth is not available for 
 these data nor for the many studies looking at brain
 morphology, an indirect method (or set of methods) is required for
 determining the quality of thickness estimation.
@@ -73,7 +75,7 @@ thickness algorithms.  For example, in \cite{clarkson2011}, classification
 of healthy, semantic dementia, and progressive non-fluent aphasia categories
 using regional cortical thickness values was used to determine the predictive
 modeling capabilities of different cortical thickness processing protocols in 
-101 subjects. However, differential diagnosis of frontotemporal dementia 
+101 subjects. However, differential diagnosis of dementia 
 \cite{neary2005} is not as straightforward as obtaining a subject's age
 or gender and regressing that against cortical thickness---biological 
 relationships which have been well-studied and reported in the literature.  
@@ -83,8 +85,9 @@ relationships which have been well-studied and reported in the literature.
   \begin{tabular}{c}
   \includegraphics[width=85mm]{agePrediction.pdf} \\
   \end{tabular}
-  \caption{Age prediction distributions of linear (left) and random forest (right)
-           models for the ANTs- and FreeSurfer-derived thickness values.
+  \caption{Age prediction RMSE distributions of linear (left) and random forest (right)
+           models for the ANTs- and FreeSurfer-derived thickness values.  For both prediction
+           models ANTs RMSE error is lower.
            }
   \label{fig:agePrediction}
 \end{figure}
@@ -101,24 +104,22 @@ gender prediction comparisons. Although age predictive capabilities for
 both pipelines showed improvement (gender prediction was mostly unaffected), 
 the relative outcomes were the same.  
 One interesting result
-is that predictive performance completely degenerated at the 10\% level
+is that predictive performance degenerated at the 10\% level
 which translates into approximately 100 subjects being used for training
 raising concerns about the use of smaller cohorts for performance comparisons.
 }
-We then use the training data to create two models, standard linear regression
-and random forests (a non-parametric machine learning technique) \cite{breiman2001},
+We then used the training data to create two models for each pipeline:
+1) standard linear regression
+and 2) random forests (a non-parametric machine learning technique) \cite{breiman2001},
 for estimating age from both ANTs and FreeSurfer thickness values in the testing data.  
 
-The formula (in the notation of \cite{wilkinson1973} for the linear model is
+The formula (in the notation of \cite{wilkinson1973}) for the linear model is
 \begin{align}
   AGE \sim VOLUME + \sum_{i=1}^{62} T(DKT_{i})*GENDER
 \end{align}
 where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$.
-and $VOLUME$ is included as a nuisance variable.  Similarly, the random forest 
-model was specified as a combination of all terms: 
-\begin{align}
-  AGE \sim VOLUME + GENDER + \sum_{i=1}^{62} T(DKT_{i})
-\end{align}
+Similarly, the random forest 
+model was specified as a combination of all terms
 using the {\tt randomForest}%
 \footnote{
 http://cran.r-project.org/package=randomForest
@@ -155,18 +156,6 @@ FreeSurfer & 13.9   &       12.3 \\
 
 \subsection{Gender prediction assessment}
 
-We also perform a similar prediction assessment using gender
-as the regressand.   The binomial generalized linear model is
-\begin{align}
-  GENDER \sim VOLUME + \sum_{i=1}^{62} T(DKT_{i})*AGE
-\end{align}
-where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$.
-We then characterized performance using a ROC curve for both methods 
-(see Figure \ref{fig:genderPrediction})) where we averaged over 1000
-permutations.  We also calculated the area under the curve (AUC) for
-both methods which resulted in mean values of ANTs$_{AUC} =0.83$ and 
-FreeSurfer$_{AUC} =0.78$.
-
 \begin{figure}[htb]
   \centering
   \begin{tabular}{c}
@@ -179,6 +168,19 @@ FreeSurfer$_{AUC} =0.78$.
   }
   \label{fig:genderPrediction}
 \end{figure}
+
+We also perform a similar prediction assessment using gender
+as the regressand.   The binomial generalized linear model is
+\begin{align}
+  GENDER \sim VOLUME + \sum_{i=1}^{62} T(DKT_{i})*AGE
+\end{align}
+where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$.
+We then characterized performance using a ROC curve for both methods 
+(see Figure \ref{fig:genderPrediction}) where we averaged over 1000
+permutations.  The mean area under the curve (AUC) for
+both methods was also quantified with values of ANTs$_{AUC} =0.83$ and 
+FreeSurfer$_{AUC} =0.78$.
+
    
 
 \subsection{Computation time}
@@ -202,8 +204,9 @@ although ANTs processing, on average, took slightly longer (cf Figure \ref{fig:t
 
 The propagation of the DKT labels to each subject using label fusion as described earlier
 was performed in parallel and took anywhere between 40 and 80 hours per 
-subject for 16 serial image registrations and application of the joint label fusion algorithm \citep{wang2013}.  Note that the script mentioned earlier {\tt antsMalfLabeling.sh} parallelizes
-the registration component which potentially decreases the time for parallel computation platforms.
+subject for 16 serial image registrations and application of the joint label fusion algorithm \citep{wang2013}. 
+Note that the script mentioned earlier {\tt antsMalfLabeling.sh} parallelizes
+the registration component which decreases the time for parallel computation platforms.
  
  
  
