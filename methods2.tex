@@ -1,17 +1,17 @@
 \section{Methods and Materials}
 
-\subsection{ANTs volumetric-based cortical thickness estimation pipeline}
+\subsection{ANTs volume-based cortical thickness estimation pipeline}
 
-The ANTs-based cortical thickness estimation workflow is illustrated 
+The ANTs cortical thickness estimation workflow is illustrated
 in Figure \ref{fig:pipeline}.  The steps are as follows:
 \begin{enumerate}
-  \item initial N4 bias correction on input anatomical MRI,
-  \item brain extraction using a hybrid segmentation/template-based strategy,
-  \item alternation between prior-based segmentation and ``pure tissue'' 
-        posterior probability weighted bias correction,
-  \item DiReCT-based cortical thickness estimation, and
-  \item optional normalization to specified template and multi-atlas
-    cortical parcellation. 
+  \item Initial N4 bias correction on input anatomical MRI
+  \item Brain extraction using a hybrid segmentation/template-based strategy
+  \item Alternation between prior-based segmentation and ``pure tissue''
+        posterior probability weighted bias correction
+  \item DiReCT-based cortical thickness estimation
+  \item Optional normalization to specified template and multi-atlas
+    cortical parcellation
 \end{enumerate}
 Each component, including both software and data, is briefly detailed 
 below with the relevant references for additional information. 
@@ -30,7 +30,7 @@ a single IXI subject to demonstrate the simplicity and
 mature status of what we propose in this work and a comparison
 with the analogous FreeSurfer command.  
 Option descriptions are provided by invoking the
-help option, i.e. `{\tt antsCorticalThickness.sh -h}.'
+help option, i.e. ``{\tt antsCorticalThickness.sh -h}''.
 
 \lstset{frame = htb,
         framerule = 0.25pt,
@@ -51,8 +51,7 @@ help option, i.e. `{\tt antsCorticalThickness.sh -h}.'
         language=bash,
         floatplacement=!h,
         caption={\small \baselineskip 12pt Analogous ANTs and FreeSurfer command line calls 
-        for a single IXI subject which is representative of the calls used for each subject
-        of the evaluation study.  
+        for a single IXI subject in the evaluation study.
         },
         captionpos=b,
         label=listing:antsCorticalThickness
@@ -66,7 +65,7 @@ antsCorticalThickness.sh \
   -e IXI/template/T_template0.nii.gz \
   -m IXI/template/T_template0ProbabilityMask.nii.gz \
   -p IXI/template/Priors/priors%d.nii.gz \
-  -f IXI/template/T_template0ExtractionMask.nii.gz \
+  -f IXI/template/T_template0ExtractionMask.nii.gz \  //I THINK IT LOOKS BETTER TO PUT THE -m AND -f TOGETHER//
   -o IXI/ANTsResults/IXI002-Guys-0828-
 
 # FreeSurfer  
@@ -92,15 +91,19 @@ recon-all \
 
 \subsubsection{Anatomical template construction}
 
-Normalizing images to a standard coordinate system
+Registering (``normalizing'') images to a standard coordinate system
 reduces intersubject variability in population studies.  Various
-approaches exist for determining the normalized space such as the selection
-of a pre-existing template based on a single subject, e.g. the Talairach
-atlas \citep{Talairach1988}, or a publicly available averaged group of
-subjects, e.g. the MNI \citep{Collins1994} or ICBM \citep{Mazziotta1995}
-templates.  Additionally, mean templates constructed from labeled
+approaches exist for determining the normalization or coordinate space,
+such as the selection of a pre-existing template based on a single individual
+(e.g., the Talairach atlas \citep{Talairach1988}) or a publicly available average of multiple individuals
+(e.g., the MNI \citep{Collins1994} or ICBM \citep{Mazziotta1995}
+templates), or an average template constructed from the individuals under study.
+//IF YOU USE THE ABOVE SENTENCE, THEN YOU'LL NEED TO CHANGE THE FOLLOWING SOMEWHAT//
+Additionally, mean templates constructed from labeled
 data can be used to construct spatial priors for improving segmentation
-algorithms.
+algorithms. //THIS SEEMS TO COME OUT OF THE BLUE,
+SINCE YOU DON'T SAY THAT REGISTRATION IS OFTEN USED TO HELP IN SEGMENTATION.
+THE FOLLOWING SENTENCES DON'T FOLLOW//
 The work of \cite{avants2010} explicitly models the geometric component of the 
 normalized space during optimization to produce such mean templates.  Coupling the intrinsic symmetry of 
 SyN pairwise registration \citep{avants2011} and an
@@ -111,28 +114,31 @@ templates.
 The ANTs implementation of this technique is currently available as a shell script, 
 {\tt buildtemplateparallel.sh}.  A generalized, multivariate version is also available as
 {\tt antsMultivariateTemplateConstruction.sh}.  Both scripts are distributed as part of
- the ANTs repository.
-The multivariate script permits the construction of multimodal templates (e.g. 
-T1-weighted, T2-weighted, proton density MRI and fractional anisotropy).  
+ the ANTs repository.  //REPOSITORY MIGHT NOT MAKE SENSE TO PEOPLE.
+ BETTER "SOFTWARE" OR "SOFTWARE PACKAGE" or "TOOLKIT", WHICH IS WHAT YOU USE ELSEWHERE IN THIS PAPER.//
+The multivariate script permits the construction of multimodal templates
+//ARE THE TEMPLATES MIXED MODALITIES, OR INDIVIDUAL MODALITIES CORRESPONDING TO THE FOLLOWING LIST
+THAT HAVE BENEFITTED BY THE USE OF OTHER MODALITIES?//
+(e.g. T1-weighted, T2-weighted, proton density MRI and fractional anisotropy).
 Both scripts accommodate a variety of computational resources
 for facilitating template construction.  These computational resource possibilities include:
 \begin{itemize}
-  \item serial processing on a single workstation, 
+  \item serial processing on a single workstation
   \item parallelized processing on a single workstation with multiple cores using \verb#pexec#%
-  \footnote{http://www.gnu.org/software/pexec/pexec.1.html},
+  \footnote{http://www.gnu.org/software/pexec/pexec.1.html}
   \item parallelized processing using Apple's XGrid technology%
-  \footnote{https://developer.apple.com/hardwaredrivers/hpc/xgrid\_intro.html}, 
+  \footnote{https://developer.apple.com/hardwaredrivers/hpc/xgrid\_intro.html}
   \item parallelized processing using Sun Grid Engine for cluster-based systems%
-  \footnote{http://www.oracle.com/technetwork/oem/grid-engine-166852.html}, and 
+  \footnote{http://www.oracle.com/technetwork/oem/grid-engine-166852.html}
   \item parallelized processing using the Portable Batch System for cluster-based systems%
-  \footnote{http://www.pbsworks.com/}.
+  \footnote{http://www.pbsworks.com/}
 \end{itemize}
 
 For this work, database-specific templates were used during cortical thickness pipeline
-processing for both brain extraction and brain segmentation steps.  Multivariate templates 
-were constructed from the multimodal data sets.  However, their usage was based on the 
-fact that they had been built previously for other work and not because they provide a 
-discernible advantage over univariate templates (i.e. T1-only) for the proposed workflow.
+processing for both brain extraction and brain segmentation steps.  We used multivariate templates
+because they had already been constructed for a previous study from the multimodal data sets,
+not because they have been demonstrated to confer an advantage over univariate templates (i.e., T1-only)
+for the proposed workflow.
 
 \subsubsection{N4 bias field correction}
 
@@ -145,7 +151,7 @@ as part of their standard protocol \citep{boyes2008}.
 
 In \cite{tustison2010} we introduced an improvement of N3, denoted as
 ``N4'', which demonstrates a significant increase in performance and convergence behavior
-on a variety of data.  This improvement is a result of an enhanced 
+on a variety of data. //REFERENCE NEEDED// This improvement is a result of an enhanced
 fitting routine (which includes multi-resolution capabilities) and a modified optimization 
 formulation.  For our workflow, the additional possibility of specifying
 a weighted mask in N4 permits the use of a ``pure tissue'' probability map 
@@ -155,70 +161,79 @@ bias field estimation.
 
 N4 is used in two places during the individual subject processing (cf Figure
 \ref{fig:pipeline}).  
-Initially, it is used to generate an initial bias corrected image for use in
+It is used to generate an initial bias-corrected image for use in
 brain extraction.  The input mask is created by adaptively thresholding 
 the background from the foreground using Otsu's algorithm \citep{otsu1979}.
 Following brain extraction, six-tissue (cerebrospinal fluid, cortical gray 
 matter, white matter, deep gray matter, brain stem, and cerebellum)
 segmentation involves iterating
 between bias field correction using the current pure tissue 
-probability map as a weight mask and then using that bias corrected image
-as input to the Atropos segmentation step (described below). 
+probability map as a weight mask and then using that bias-corrected image
+as input for the Atropos segmentation step (described below).
 
 \subsubsection{Brain extraction}
 
 \begin{figure*}
   \includegraphics[width=180mm]{montageRandom.png}
-  \caption{Random sampling of volumetric brain renderings from the four
-  different cohorts (IXI = red, Kirby = green, NKI = blue, Oasis = orange)
+  \caption{Representative sample of volume brain renderings from the four
+  different cohorts (IXI = red, Kirby = green, NKI = blue, Oasis = orange),
   illustrating the qualitative difference between ANTs and FreeSurfer 
-  (``FS'') results which are arrange pairwise.  Each brain was rigidly 
+  (``FS'') results, which are arranged side-by-side for each subject.  Each brain was rigidly
   registered to the Oasis template for rendering purposes.  Below each image 
   we provide subject ID, age, and gender.
   }
   \label{fig:brainExtraction}
 \end{figure*}
 
+//MOST OF THE IMAGES COME FROM IXI.  I WOULD PREFER TWO ROWS DEVOTED TO EACH COHORT,
+ WITH ANTS ABOVE AND FS BELOW (AND PERHAPS THE ID, ETC., SHOWN ONLY BETWEEN EACH PAIR OF IMAGES).//
+
 Brain extraction using ANTs combines template building, high-performance
-brain image registration, and Atropos with topological refinements.  
-An optimal template \cite{avants2010} is first constructed using labeled 
-brain data (e.g. LPBA40).  Template construction iterates between estimating
+brain image registration, and Atropos segmentation with topological refinements.
+An optimal template \cite{avants2010} is first constructed using structural MRI data
+that is accompanied by corresponding anatomical labels (e.g., the LPBA40 data set).
+//LPBA40 2008 SHATTUCK REFERENCE//
+//PERHAPS YOU SHOULD REFER TO "OPTIMAL TEMPLATES" ABOVE//
+Template construction iterates between estimating
 the optimal template and registering each subject to the optimal template.
 Thus, the construction produces the transforms necessary to warp each 
-subject's labeling to the template space.  We use these transformed labelings
+subject's labels to the template space.  We use these transformed labels
 to create a probabilistic estimate of the brain mask for the template.
 In this work, we perform the additional step of building separate templates
-for each cohort and propagate the probabilistic mask to each cohort template
+for each cohort and propagating the probabilistic mask to each cohort template
 using registration of the T1-weighted templates (cf Figure \ref{fig:template}).
-Further refinement include thresholding the warped brain probability map 
-at 0.5 and dilated the resulting mask with a radius of two.  Atropos is used 
+Further refinements include thresholding the warped brain probability map
+at 0.5 and dilating the resulting mask with a radius of two.  Atropos is used
 to generate an initial three-tissue segmentation estimate within the mask
-region.  Each of the three tissue labels undergo specific morphological 
+region.  Each of the three tissue labels undergoes specific morphological  //"SPECIFIC"?  COULDN'T YOU SPECIFY THEM HERE?//
 operations which are then combined to create a brain extraction mask for use 
 in the rest of the cortical thickness workflow using the script {\tt antsBrainExtraction.sh}.  
 
-A comparison of an earlier version of our extraction methodology 
-using open access brain data with publicly available
-brain extraction algorithms including AFNI's \verb#3dIntracranial#
+In an evaluation study, we compared an earlier version of our extraction method
+with publicly available brain extraction algorithms, including
+AFNI's \verb#3dIntracranial#
 \citep{ward1999}, FSL's \verb#BET2# \citep{smith2002}, FreeSurfer's
 \verb#mri_watershed# \citep{segonne2004}, and BrainSuite
-\citep{dogdas2005} demonstrated that our combined
+\citep{dogdas2005}. We demonstrated that our combined
 registration/segmentation approach \citep{avants2010a} performed
-comparable BrainSuite (tuned) and FreeSurfer.  A visual comparison
-of results derived with the current ANTs brain extraction processing 
-with FreeSurfer is seen in Figure \ref{fig:brainExtraction}.
+with an accuracy comparable to FreeSurfer and a parameter-tuned version of BrainSuite.
+Figure \ref{fig:brainExtraction} presents a visual comparison of results derived with
+the current ANTs brain extraction method and results obtained using FreeSurfer.
 
 \subsubsection{Atropos six-tissue segmentation}
 
+//I THINK YOU SHOULD ADD COMMAS AFTER ALL OF YOUR LATIN ABBREVIATIONS LIKE "e.g.," and "i.e.,".
+SOME PEOPLE ALSO PREFER TO ITALICIZE THESE AS WELL.//
+
 In \cite{avants2011a} we presented an open source $n$-tissue segmentation software tool
-(which we denote as ``Atropos'') attempting to distill 20+ years of active research in this area
-particularly some of its most seminal work (e.g. \cite{zhang2001,ashburner2005}). 
+(which we denote as ``Atropos'') that attempts to distill over 20 years of active research in this area,
+in particular some of the most seminal work (e.g., \cite{zhang2001,ashburner2005}).
 Specification of prior probabilities includes spatially varying Markov Random Field modeling, 
 prior label maps, and prior probability maps typically derived from our template building 
 process.  Additional
 capabilities include handling of multivariate data, 
 partial volume modeling \citep{shattuck2001}, a memory-minimization mode,
-label propagation, a plug-n-play architecture for incorporation of novel likelihood models
+label propagation, a plug-and-play architecture for incorporation of novel likelihood models
 which includes both parametric and non-parametric models for both scalar and tensorial
 images, and alternative posterior formulations for different segmentation tasks.
 
@@ -238,8 +253,8 @@ One of the key insights of the original N3 development is the
 observation that inhomogeneities cause the intensity values of
 pure tissue peaks to spread in the intensity histogram as though
 convolved with a Gaussian.  A core contribution of N3 is the
-proposed corrective of deconvolving the intensity histogram to 
-accentuate the tissue peaks coupled with a spatial smoothing 
+proposed corrective step of deconvolving the intensity histogram to
+accentuate the tissue peaks, coupled with a spatial smoothing
 constraint. The pure tissue probability mask
 weights more heavily the voxels corresponding to pure tissue 
 types (as determined by the segmentation) during the deconvolution process 
@@ -255,39 +270,47 @@ $P(x|y) \propto P(y|x)^{1-\alpha}P(x)^{\alpha}$
 where $\alpha$ is a user-selected parameter which weights the tradeoff between the likelihood and priors terms.
 In this work, we chose a weighting of $\alpha = 0.25$ 
 based on our extensive experimentation with different parameter weights.
+//WHAT DATA WERE THESE EXTENSIVE EXPERIMENTS RUN ON? DID THEY INTERSECT WITH THE DATA IN THIS STUDY?//
 
 Since cortical thickness estimation only requires the cortical gray
-and white matters, the deep gray and white matters 
-(both labelings and posterior maps) are combined to a single 
-``white matter'' set.  This new set combined with the cortical
-gray matter results are the only results from the segmentation
-step used in the DiReCT algorithm (described below).  
+and white matter, the deep gray and white matter
+(both labels and posterior maps) are combined to form a single
+``white matter'' set.  This white matter set and the cortical
+gray matter are the only results from the segmentation
+step that are used by the DiReCT algorithm (described below).
 
 
 \subsubsection{DiReCT (aka KellySlater/KellyKapowski) cortical thickness estimation}
 
+//I WOULD REMOVE ALL THE OTHER NAMES IN THE SUBSUBSECTION HEADER, SINCE YOU LIST THEM IN THE TEXT BELOW.//
+
 DiReCT was introduced 
-in \cite{das2009} and made available in ANTs as the program \verb#KellySlater#.
+in \cite{das2009} and was made available in ANTs as the program \verb#KellySlater#.
 Since then several improvements have been made and incorporated into the program
 \verb#KellyKapowski#.%
 \footnote{
 Traditional academic discourse encountered in the published literature
 rarely contextualizes peculiarities such as algorithmic nomenclature.
 We briefly mention that
-this was the source of a rare disagreement between the first and last authors
+this //NAME// was the source of a rare disagreement between the first and last authors
 based, as many disagreements are, on a simple misunderstanding and not an
 affronting existential statement concerning a certain favorite sitcom
 of the first author's youth. 
 }
-Among the most significant advancements is that the more recent
-implementation is multi-threaded, written in rigorous ITK coding style, and 
-has been made publicly available through  ANTs complete with a unique user 
-interface design developed specifically for ANTs tools.  
+
+//LOVE THE ABOVE FOOTNOTE!//
+
+The more recent implementation has made numerous advances, including:
+it is multi-threaded, written in rigorous ITK coding style //REFERENCE//, and
+has been made publicly available through ANTs, complete with a unique user
+interface design developed specifically for ANTs tools.
+
+//WHAT USER INTERFACE?//
 
 \subsection{Public data resources}
 
-The four public data sets which were processed
-using the previously described pipeline are IXI, Kirby, NKI, and Oasis.
+The above pipeline was run on four publicly available data sets:
+IXI, Kirby, NKI, and Oasis.  //OASIS?//
 In addition, we used a subset of the MindBoggle-101 data%
 \footnote{
 http://mindboggle.info/data.html
@@ -299,21 +322,24 @@ All five data sets are described below.
 
 \subsubsection{MindBoggle-101 data for ROI definitions}
 
-In \cite{klein2012} the authors proposed the DKT protocol---a modification of the 
-popular Desikan protocol \cite{desikan2006} for purposes of labeling
-consistency and facilitating FreeSurfer cortical classification of 
-regions (which are given in Table \ref{table:dkt_labels}). 
-Since the regional thickness values defined by the DKT atlas 
-are calculated as part of the current FreeSurfer processing protocol, this atlas 
-provides the common measurement standard for comparison between ANTs and FreeSurfer.
+In \cite{klein2012} the authors proposed the DKT cortical labeling protocol---a modification of the
+popular Desikan-Killiany protocol \cite{desikan2006} to improve cortical labeling
+consistency and to improve FreeSurfer's cortical classification of 31 cortical regions per hemisphere,
+listed in Table \ref{table:dkt_labels}.
+For the latter, forty manually labeled brains were used to construct the DKT40 Gaussian classifier atlas,
+which is now bundled with current versions of FreeSurfer and
+used to automate anatomical labeling of MRI data.
+Since the regional thickness values generated by FreeSurfer follow this protocol,
+these anatomical labels provide a common standard for comparison between ANTs and FreeSurfer.
 
-The work of \cite{klein2012} also resulted in a publicly available set of 101 DKT-labeled 
-T1-weighted  brain images from different sources including a subset of 20 images
-from the Oasis data set.  These 20 images are used to define the volumetric regions for 
-each subject during the ANTs processing using multi-atlas label propagation \cite{wang2013}.  
-Parameters used are found in the script {\tt antsMalfLabeling.sh} which is also 
-distributed with the ANTs toolkit.  
-Cortical thickness values are averaged within each label for each subject using only 
+The work of \cite{klein2012} also resulted in a publicly available set of
+manually edited labels following the DKT protocol in 101
+T1-weighted  brain images from different sources, including a subset of 20 images
+from the Oasis data set.  These 20 images are used in the ANTs
+multi-atlas label propagation \cite{wang2013} step that defines the volumetric regions for each subject.
+The parameters for this step may be found in the {\tt antsMalfLabeling.sh} script, which is also
+distributed with the ANTs toolkit.  //CAN'T YOU LIST THE PARAMETERS HERE?//
+Cortical thickness values are averaged within each labeled region for each subject using only
 the non-zero voxels from the cortical thickness map. 
 
 \begin{table}
@@ -342,24 +368,25 @@ the non-zero voxels from the cortical thickness map.
 \label{table:dkt_labels}
 \end{table}
 
+//WHAT IS WITH THE WEIRD NUMBERING IN THIS TABLE -- WHY NOT SIMPLY LIST UP-TO-DOWN?//
 
 \subsubsection{Public data for thickness estimation evaluation}
 
 \begin{figure}
   \centering
   \includegraphics[width=90mm]{Figures/templates.pdf}
-  \caption{Population-specific templates for each of the four public data sets used 
+  \caption{Population-specific templates for each of the four public data sets used
   for cortical thickness 
-  estimation generated using the script {\tt antsMultivariateTemplateConstruction.sh}. 
-  The benefit of using such templates is obvious considering the variability in
+  estimation. These templates were generated using the script {\tt antsMultivariateTemplateConstruction.sh}.
+  The benefit of using such population-specific templates is obvious when one sees the variability in
   acquisition and data preparation (e.g. defacing protocols).
   }
   \label{fig:template}
 \end{figure}
 
-We apply the same pipeline to diverse publicly available datasets collected
+We apply //PAST TENSE?// the same pipeline to diverse publicly available data sets collected
 from multiple sites and with a mixture of 3T and
-1.5T T1 brain images.  Subjects in this dataset
+1.5T T1 brain images.  Subjects in this data set  //I CHANGED ALL "DATASET" TO "DATA SET" TO BE CONSISTENT. CHOOSE ONE OR THE OTHER//
 span the age range from 4 to 96 years old.  This strategy tests robustness to
 variation in head position, brain shape, defacing, image contrast, inhomogeneity, imaging
 artifacts, and the broad variation in extracerebral tissue.  Failure
@@ -367,26 +394,28 @@ can occur in initial brain extraction, segmentation, registration, or
 bias correction, any of which will lead to an inaccurate cortical
 thickness measurement.                           
 
-In total, we processed 1205 T1-weighted images from four different
-public data sets to obtain the corresponding cortical thickness maps.                           
-The descriptions of the four data sets are as follows: 
+In total, we processed 1,205 T1-weighted images from four different
+public data sets to obtain cortical thickness maps.
+Below we describe the four data sets:
                                           
 \paragraph{IXI}
-Initially, we began with 581 T1-weighted images from the IXI%
+Initially, we processed 581 T1-weighted images from the IXI%
 \footnote{
 http://biomedic.doc.ic.ac.uk/brain-development/
 }
- data set
-of which all were processed but only 563 subjects 
+ data set, but only 563 subjects
 (313 females, 250 males) were included in the post processing analysis due to 
-missing demographic information preventing an accurate estimate of 
+missing demographic information, which would have prevented an accurate estimate of
 the age at the time of image acquisition.  These data were
 imaged at three sites 
 with several modalities acquired (T1-weighted, T2-weighted, proton density, magnetic 
 resonance angiography, and diffusion tensor imaging).  The 
-database also consists of  demographic information such as date of birth, date
+database also includes demographic information such as date of birth, date
 of scan, weight,
 height, ethnicity, occupation category, educational level, and marital status.
+
+
+//WHY USE "KIRBY" AS OPPOSED TO MMRR?//
 
 \paragraph{Kirby}
 The Multi-Modal MRI Reproducibility Resource%
@@ -395,8 +424,7 @@ http://www.nitrc.org/projects/multimodal/
 }, 
 or more informally, the Kirby
 data set, was originally described in \cite{landman2011} consisting of 
-21 subjects (10 females, 11 males) and features a rich multiple modality and 
-repeated acquisition schedule.
+21 subjects (10 females, 11 males) and features a rich set of modalities, as well as repeated scans.
 
 \paragraph{NKI}
 In support of open science, the 1,000 Functional Connectomes Project%
@@ -404,9 +432,9 @@ In support of open science, the 1,000 Functional Connectomes Project%
 http://fcon\_1000.projects.nitrc.org
 }
 was initiated on December 11, 2009 by various members of the MRI community
-seeking to form collaborative partnerships with imaging institutions for 
+seeking to form collaborative partnerships among imaging institutions for
 sharing well-documented multimodal image sets accompanied by phenotypic data.
-One such contribution is the Nathan Klein Institute (NKI)/Rockland sample
+One such contribution is the Nathan Klein Institute (NKI)/Rockland sample,
 consisting of 186 T1-weighted
 images (87 females, 99 males).%
 \footnote{
@@ -418,10 +446,10 @@ The initial Open Access Series of Imaging Studies (OASIS)%
 \footnote{
 http://www.oasis-brains.org/
 }
-data set consisted of 433 T1-weighted images.  All were processed
-although 100 subjects were excluded from analysis due to probable Alzheimer's
-disease ($CDR > 0$) and 20 subjects had repeat scans
-for 313 individual subjects included in the normal group statistical
+data set consisted of 433 T1-weighted images.  We processed all of these,
+but 100 were excluded from our analysis due to probable Alzheimer's
+disease ($CDR > 0$) and an additional 20 repeat scans were excluded,
+ resulting in 313 individual subject scans included in the normal group statistical
 analysis (118 males, 195 females).
 Ages were between 18 and 96 and  
 all subjects are right-handed.  
@@ -443,8 +471,8 @@ all subjects are right-handed.
 
 \subsection{Processing miscellany}
 
-Given the documented variability in FreeSurfer results with version number and
-Mac OS \cite{gronenschild2012} (as we would expect with our own ANTs pipeline), 
+Given the documented variability in FreeSurfer results with version and
+operating system \cite{gronenschild2012} (as we would expect with our own ANTs pipeline),
 all data was processed using the same ANTs and FreeSurfer versions on the same 
 hardware platform.  Processing was performed using the Linux (CentOS release 6.4) 
 cluster at the University 
