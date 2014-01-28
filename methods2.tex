@@ -89,54 +89,6 @@ recon-all \
   \label{fig:pipeline}
 \end{figure*}
 
-\subsubsection{Anatomical template construction}
-
-Registering (``normalizing'') images to a standard coordinate system
-reduces intersubject variability in population studies.  Various
-approaches exist for determining the normalization or coordinate space,
-such as the selection of a preexisting template based on a single individual
-(e.g., the Talairach atlas \citep{Talairach1988}) or a publicly available average of multiple individuals
-(e.g., the MNI \citep{Collins1994} or ICBM \citep{Mazziotta1995}
-templates), or an average template constructed from the individuals under study.
-The work of \cite{avants2010} explicitly models the geometric component of the 
-normalized space during optimization to produce such mean templates.  Coupling the intrinsic symmetry of 
-SyN pairwise registration \citep{avants2011} and an
-optimized shape-based sharpening/averaging of the template appearance, Symmetric Group Normalization (SyGN) is a powerful framework for producing optimal population-specific templates.
-
-The ANTs implementation of this technique is currently available as a shell script, 
-{\tt buildtemplateparallel.sh}.  A generalized, multivariate version is also available as
-{\tt antsMultivariateTemplateConstruction.sh}.  Both scripts are distributed as part of
- the ANTs software.  The multivariate script permits the construction of multimodal templates
-created from a cohort of subjects, each with a set of pre-aligned multimodal images per subject.  
-All modalities are used during the template-building process.  For example, for $N$ subjects where 
-each subject has T1, T2, and FA images which are all aligned in the same subject space, 
-a multimodal template consisting 
-of T1, T2, and FA components can be created using antsMultivariateTemplateConstruction.sh.
-Both scripts accommodate a variety of computational resources
-for facilitating template construction.%
-\footnote{
-A self-contained 2-D example is available at https://github.com/ntustison/TemplateBuildingExample.
-}
-
-These computational resource possibilities include:
-\begin{itemize}
-  \item serial processing on a single workstation
-  \item parallelized processing on a single workstation with multiple cores using \verb#pexec#%
-  \footnote{http://www.gnu.org/software/pexec/pexec.1.html}
-  \item parallelized processing using Apple's XGrid technology%
-  \footnote{https://developer.apple.com/hardwaredrivers/hpc/xgrid\_intro.html}
-  \item parallelized processing using Sun Grid Engine for cluster-based systems%
-  \footnote{http://www.oracle.com/technetwork/oem/grid-engine-166852.html}
-  \item parallelized processing using the Portable Batch System for cluster-based systems%
-  \footnote{http://www.pbsworks.com/}  
-\end{itemize}
-
-For this work, cohort-specific templates were used during cortical thickness pipeline
-processing for both brain extraction and brain segmentation steps.  We used multivariate templates
-because they had already been constructed for a previous study from the multimodal data sets,
-not because they have been demonstrated to confer an advantage over univariate templates (i.e.,, T1-only)
-for the proposed workflow.  
-
 \subsubsection{N4 bias field correction}
 
 Critical to quantitative processing of MRI is the minimization of
@@ -306,6 +258,76 @@ provided.
 https://github.com/ntustison/antsCorticalThicknessExample
 }
 
+\subsubsection{Anatomical template construction}
+
+Normalizing images to a standard coordinate system
+reduces intersubject variability in population studies.  Various
+approaches exist for determining the standardized coordinate space,
+such as the selection of a preexisting template based on a single individual
+(e.g., the Talairach atlas \citep{Talairach1988}) or a publicly available average of multiple individuals
+(e.g., the MNI \citep{Collins1994} or ICBM \citep{Mazziotta1995}
+templates), or an average template constructed from the individuals under study.
+The work of \cite{avants2010} explicitly models the geometric component of the 
+normalized space during optimization to produce such mean templates.  Coupling the intrinsic symmetry of 
+SyN pairwise registration \citep{avants2011} and an
+optimized shape-based sharpening/averaging of the template appearance, Symmetric Group Normalization (SyGN) is a powerful framework for producing optimal population-specific templates.
+
+The ANTs implementation of this technique is currently available as a shell script, 
+{\tt buildtemplateparallel.sh}.  A generalized, multivariate version is also available as
+{\tt antsMultivariateTemplateConstruction.sh}.  Both scripts are distributed as part of
+ the ANTs software.  The multivariate script permits the construction of multimodal templates
+created from a cohort of subjects, each with a set of pre-aligned multimodal images per subject.  
+All modalities are used during the template-building process.  For example, for $N$ subjects where 
+each subject has T1, T2, and fractional anisotropy (FA) images which are all aligned in the same subject space, 
+a multimodal template consisting 
+of T1, T2, and FA components can be created using antsMultivariateTemplateConstruction.sh.
+Both scripts accommodate a variety of computational resources
+for facilitating template construction.%
+\footnote{
+A self-contained 2-D example is available at https://github.com/ntustison/TemplateBuildingExample.
+}
+These computational resource possibilities include:
+\begin{itemize}
+  \item serial processing on a single workstation
+  \item parallelized processing on a single workstation with multiple cores using \verb#pexec#%
+  \footnote{http://www.gnu.org/software/pexec/pexec.1.html}
+  \item parallelized processing using Apple's XGrid technology%
+  \footnote{https://developer.apple.com/hardwaredrivers/hpc/xgrid\_intro.html}
+  \item parallelized processing using Sun Grid Engine for cluster-based systems%
+  \footnote{http://www.oracle.com/technetwork/oem/grid-engine-166852.html}
+  \item parallelized processing using the Portable Batch System for cluster-based systems%
+  \footnote{http://www.pbsworks.com/}  
+\end{itemize}
+
+For this work, cohort-specific templates were used during cortical thickness pipeline
+processing for both brain extraction and segmentation steps.  Further details regarding
+the actual templates used (along with corresponding prior probability maps) are given 
+in the section describing the public data used.  The quality of prior probability images,
+particularly for the segmentation step, is crucial for performance.  
+
+To generate the priors for each T1 template, we used the multi-atlas label fusion (MALF) 
+algorithm of \cite{wang2013} which is also distributed with ANTs and simplified with the 
+{\tt antsMalfLabeling.sh} script.  We also used the training data associated with the 
+MICCAI 2012 Grand Challenge and Workshop on Multi-Atlas Labeling%
+\footnote{
+https://masi.vuse.vanderbilt.edu/workshop2012/index.php/Main\_Page
+}
+consisting of 20 labeled brain data taken from the OASIS data set.%
+\footnote{
+The data was released under the Creative Commons Attribution-NonCommercial license. 
+Labelings were provided by Neuromorphometrics, Inc. (http://Neuromorphometrics.com/) 
+under academic subscription.
+}
+Once the labels were propagated to the template, we condensed the 100+ labels associated
+with the training data to the six needed for our analysis, viz., cerebrospinal fluid (CSF), 
+gray matter (GM), white matter (WM), deep gray matter, brain stem, and cerebellum.  These binary
+masks were then smoothed using Gaussian convolution with a one voxel-width kernel (cf
+Figure \ref{fig:templateMasks}).  Since the labelings did not describe the extracerebral
+CSF, we augmented the CSF prior image with the CSF posterior output from running each template 
+through the segmentation component of the above-described pipeline with a template 
+that we had built previously.  This new CSF prior was then subtracted from each of the
+other five prior probability images.
+
 \subsection{Public data resources}
 
 The above pipeline was run on four publicly available data sets:
@@ -362,11 +384,8 @@ The work of \cite{klein2012} also resulted in a publicly available set of
 manually edited labels following the DKT protocol in 101
 T1-weighted  brain images from different sources, including a subset of 20 images
 from the OASIS data set (specifically, the test-retest data).  
-These 20 images are used in the ANTs
-multi-atlas label fusion (MALF) \cite{wang2013} step that defines the volumetric regions for each subject.  This was performed using the program {\tt jointfusion}
-with default parameters which is also distributed with the ANTs toolkit and simplified with the {\tt antsMalfLabeling.sh} script.  
-Cortical thickness values are averaged within each labeled region for each subject using only
-the non-zero voxels from the cortical thickness map.
+These 20 images are used in the MALF step that defines the volumetric cortical regions 
+for each subject.  
 
 
 \subsubsection{Public data for thickness estimation evaluation}
@@ -395,7 +414,8 @@ thickness measurement.
 
 In total, we processed 1,205 T1-weighted images from four different
 public data sets to obtain cortical thickness maps.
-Below we describe the four data sets:
+Below we describe the four data sets and their corresponding
+templates:
                                           
 \paragraph{IXI}
 Initially, we processed 581 T1-weighted images from the IXI%
@@ -413,6 +433,13 @@ database also includes demographic information such as date of birth, date
 of scan, weight,
 height, ethnicity, occupation category, educational level, and marital status.
 
+The IXI template had been built previously during an investigation of  multimodal 
+(T1, T2, FA, and proton density) template generation using different 
+aged cohorts.  Templates consisting of subjects
+within decade ranges, i.e., 10 to 20, 20 to 30, etc. were built.  These
+age-based multimodal templates were then used to build an average ``meta-template'' of which 
+the T1 component is used in this study as seen, respectively, in the first column and row of 
+Figures \ref{fig:template} and \ref{fig:templateMasks}.
 
 \paragraph{MMRR}
 The Multi-Modal MRI Reproducibility Resource (MMRR)%
@@ -420,7 +447,16 @@ The Multi-Modal MRI Reproducibility Resource (MMRR)%
 http://www.nitrc.org/projects/multimodal/
 } 
 data set, was originally described in \cite{landman2011} consisting of 
-21 subjects (10 females, 11 males) and features a rich set of modalities, as well as repeated scans.
+21 subjects (10 females, 11 males) and features a rich set of modalities, 
+as well as repeated scans.
+
+In previously testing our template construction protocol, we used all 
+MMRR data sets to construct a multimodal template consisting of
+FA, mean diffusivity (MD), FLAIR, T1, T2, magnetic transfer (MT), and 
+vascular space occupancy (VASO) components.  More details concerning 
+data acquired are provided at \cite{landman2011}.  The T1 component used in 
+this study can be seen, respectively, in the second column and row of 
+Figures \ref{fig:template} and \ref{fig:templateMasks}.
 
 \paragraph{NKI}
 In support of open science, the 1,000 Functional Connectomes Project%
@@ -437,6 +473,13 @@ images (87 females, 99 males).%
 Downloaded on September 22, 2012.
 }
 
+The T1-weighted template was constructed originally for the study performed
+in \cite{tustison2013}.  It was created from 30 randomly sampled subjects 
+which we repurpose here for our cortical thickness evaluation.  Since the 
+NKI cohort contains younger individuals, for this study we also created a 
+template for subjects of 10 years and younger generated from 13 individuals.
+Both templates and corresponding priors are also seen in Figures \ref{fig:template} and \ref{fig:templateMasks}.
+
 \paragraph{OASIS}
 The initial Open Access Series of Imaging Studies (OASIS)%
 \footnote{
@@ -446,10 +489,19 @@ data set consisted of 433 T1-weighted images.  We processed all of these,
 but 100 were excluded from our analysis due to probable Alzheimer's
 disease ($CDR > 0$) and an additional 20 repeat scans were excluded,
  resulting in 313 individual subject scans included in the normal group statistical
-analysis (118 males, 195 females).
-Ages were between 18 and 96 and  
+analysis (118 males, 195 females).  Ages were between 18 and 96 and 
 all subjects are right-handed.  
 
+As part of the MICCAI 2012 Grand Challenge mentioned earlier, the first and
+last authors were asked to provide the ``canonical'' registrations for each
+pairwise mapping.  Instead of performing $n^2$ registrations where $n$ is
+the number of subjects, we decided to produce all mappings using a 
+``pseudo-geodesic'' approach where all subjects are warped to an optimal
+template thus providing any pairwise transformation and thereby 
+reducing the number of image registrations required from $n^2$ to $n$.
+The optimal template for this pseudo-geodesic processing was constructed 
+from the combined 35 testing and training OASIS data of the MICCAI 2012 Grand 
+Challenge which we repurpose for this study.
 
 \begin{figure}
   \centering
