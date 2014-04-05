@@ -25,10 +25,10 @@ usability.
 \begin{figure*}[htb]
   \centering
   \begin{tabular}{c}
-  \includegraphics[width=130mm]{repeatabilityLeft.pdf} \\
-  \includegraphics[width=130mm]{repeatabilityRight.pdf}
+  \includegraphics[width=180mm]{repeatabilityLeft.pdf} \\
+  \includegraphics[width=180mm]{repeatabilityRight.pdf}
   \end{tabular}
-  \caption{\baselineskip 12pt Percent error variability for both ANTs and FreeSurfer pipelines 
+  \caption{Percent error variability for both ANTs and FreeSurfer pipelines 
            over the left and right hemispheres of both the MMRR and OASIS
            data subsets within the 62 regions defined by the
            Desikan-Killiany-Tourville atlas.  Both methods demonstrate good repeatability
@@ -47,10 +47,26 @@ demonstrate this in terms of the percent variability error:
 \end{align}
 Comparison of the ANTs and FreeSurfer percent variability errors for the 62 DKT 
 regions for both the OASIS and MMRR scan-rescan data sets
-are given in Figure \ref{fig:repeatability}.  Although the variance is slightly greater 
+are given in Figure \ref{fig:repeatability}.  Mean values are given in Table \ref{table:error}.
+Although the variance is slightly greater 
 for the set of ANTs measurements, statistical testing per cortical region 
 (two-tailed paired t-test, corrected using false discovery rate) did not indicate 
 non-zero mean differences for either approach for any region.
+
+
+\begin{table}
+\caption{\baselineskip 12pt {\color{blue}Mean repeatability error over all regions.}}
+\label{table:error}
+\centering
+\begin{tabular*}{0.475\textwidth}{@{\extracolsep{\fill}} l c c}
+\toprule
+{} &        {\bf MMRR}  &  {\bf OASIS} \\
+\midrule
+{\color{blue}ANTs} &       3.2\%   &      3.3\% \\
+{\color{blue}FreeSurfer} & 2.5\%   &       2.8\% \\
+\bottomrule
+\end{tabular*}
+\end{table}
 
 We also calculated the intraclass correlation coefficient 
 (``ICC(2,1)'' in the notation of \cite{shrout1979}) to assess 
@@ -70,22 +86,12 @@ these data nor for the many studies looking at brain
 morphology, an indirect method (or set of methods) is required for
 determining the quality of thickness estimation.
 
-Previous research has used predictive modeling for comparing cortical
-thickness algorithms.  For example, in \cite{clarkson2011}, classification
-of healthy, semantic dementia, and progressive non-fluent aphasia categories
-using regional cortical thickness values was used to determine the predictive
-modeling capabilities of different cortical thickness processing protocols in 
-101 subjects. However, differential diagnosis of dementia 
-\citep{neary2005} is not as straightforward as obtaining a subject's age
-or gender and regressing that against cortical thickness; the latter constitute biological
-relationships that have been well-studied and reported in the literature.
-
-\begin{figure}[htb]
+\begin{figure}[!h]
   \centering
   \begin{tabular}{c}
-  \includegraphics[width=130mm]{agePrediction.pdf} 
+  \includegraphics[width=87.5mm]{agePrediction.pdf} 
   \end{tabular}
-  \caption{\baselineskip 12pt Age prediction RMSE distributions of linear (left) and random forest (right)
+  \caption{Age prediction RMSE distributions of linear (top) and random forest (bottom)
            models for the ANTs- and FreeSurfer-derived thickness values.  For both prediction
            models ANTs RMSE error is lower.
            }
@@ -113,7 +119,8 @@ The formula (in the notation of \cite{wilkinson1973}) for the linear model is
 \begin{align}
   AGE \sim VOLUME + \sum_{i=1}^{62} T(DKT_{i})*GENDER
 \end{align}
-where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$.
+where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$ {\color{blue}{
+and $VOLUME$ is total intracranial volume}}.
 Similarly, the random forest 
 model was specified as a combination of all terms
 using the {\tt randomForest}%
@@ -129,49 +136,75 @@ error (RMSE):
 \begin{align}
   RMSE = \sqrt{\frac{\sum \left(AGE_{true} - AGE_{predicted} \right)^2}{N}}.
 \end{align}
-The resulting distributions are illustrated in Figure \ref{fig:agePrediction}
-with the linear model results displayed on the left and random forest results
-on the right.  The RMSE value was lower with ANTs thickness values for both 
-models with the ANTs-based random forest predictions performing the best.  
-Mean RMSE values are provided in Table \ref{table:agePrediction}.
+{\color{blue}{Due to the limited range in ages across data sets, we restricted training
+and testing to the age range $[20,80]$.  The resulting distributions are 
+illustrated in Figure \ref{fig:agePrediction}.  In addition to a combined
+assessment, we also perform separate model prediction for each of the three 
+larger data sets (i.e., IXI, NKI, and OASIS).}}
+
+%\begin{figure}[!h]
+%  \centering
+%  \begin{tabular}{c}
+%  \includegraphics[width=87.5mm]{ageDistribution.pdf} 
+%  \end{tabular}
+%  \caption{Age 
+%           }
+%  \label{fig:ageDistribution}
+%\end{figure}
+
+ANTs-based RMSE values were lower for both models and each of the four
+different subset comparisons except for the random forest model constructed
+from the OASIS data set. 
+All mean RMSE values are provided in Table \ref{table:agePrediction}.
 
 \begin{table}
 \caption{\baselineskip 12pt Mean RMSE for age prediction (in years).}
 \label{table:agePrediction}
 \centering
-\begin{tabular*}{0.75\textwidth}{@{\extracolsep{\fill}} l c c}
+\begin{tabular*}{0.475\textwidth}{@{\extracolsep{\fill}} l c c}
 \toprule
 {} &        {\bf Linear}  &  {\bf Random Forest} \\
 \midrule
-ANTs &       12.2   &       10.3 \\
-FreeSurfer & 13.9   &       12.3 \\
+ANTs (Combined) &       12.2   &       10.2 \\
+FreeSurfer (Combined) & 13.3   &       11.9 \\
+\midrule
+ANTs (IXI) &       11.0   &       8.6 \\
+FreeSurfer (IXI) & 14.5   &       11.7 \\
+\midrule
+ANTs (NKI) &       NA$^\dagger$   &       10.9 \\
+FreeSurfer (NKI) & NA$^\dagger$   &       13.3 \\
+\midrule
+ANTs (OASIS) &       NA$^\dagger$   &     12.3 \\
+FreeSurfer (OASIS) & NA$^\dagger$   &       11.3 \\
 \bottomrule
+{\scriptsize $^\dagger$Rank-deficient fit.}
 \end{tabular*}
 \end{table}
 
 
 \subsection{Gender prediction assessment}
 
-\begin{figure}[htb]
+\begin{figure*}[htb]
   \centering
   \begin{tabular}{c}
-  \includegraphics[width=130mm]{genderPrediction.pdf}
+  \includegraphics[width=160mm]{genderPrediction.pdf}
   \end{tabular}
-  \caption{\baselineskip 12pt Average ROC curve and corresponding AUC distributions
+  \caption{Average ROC curve and corresponding AUC distributions
   for gender prediction using ANTs and FreeSurfer thickness values.
   Values were averaged for 1000 permutations resulting in mean
   values of ANTs$_{AUC} =0.83$ and FreeSurfer$_{AUC} =0.78$
   ($p < 2.2\times10^{-16}$).
   }
   \label{fig:genderPrediction}
-\end{figure}
+\end{figure*}
 
 We also performed a similar prediction assessment using gender
 as the regressand.   The binomial generalized linear model is
 \begin{align}
   GENDER \sim VOLUME + \sum_{i=1}^{62} T(DKT_{i})*AGE
 \end{align}
-where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$.
+where $T(DKT_{i})$ is the average thickness value in region $DKT_{i}$
+{\color{blue}{and $VOLUME$ is total intracranial volume}}.
 We then characterized performance using a ROC curve for both methods 
 (see Figure \ref{fig:genderPrediction}) where we averaged over 1000
 permutations.  The mean area under the curve (AUC) for
@@ -182,30 +215,31 @@ FreeSurfer$_{AUC} =0.78$.
 
 \subsection{Computation time}
 
-\begin{figure}[htb]
-  \centering
-  \begin{tabular}{c}
-  \includegraphics[width=90mm]{Times.pdf}
-  \end{tabular}
-  \caption{\baselineskip 12pt Elapsed time across data sets for ANTs and 
-           FreeSurfer processing.  Averaged over all cohorts, ANTs required $15.7 \pm 2.0$ hours per subject and FreeSurfer required $14.1 \pm 2.9$ hours per subject.
-           }
-  \label{fig:times}
-\end{figure}
+%\begin{figure}[htb]
+%  \centering
+%  \begin{tabular}{c}
+%  \includegraphics[width=90mm]{Times.pdf}
+%  \end{tabular}
+%  \caption{\baselineskip 12pt Elapsed time across data sets for ANTs and 
+%           FreeSurfer processing.  Averaged over all cohorts, ANTs required $15.7 \pm 2.0$ hours per subject and FreeSurfer required $14.1 \pm 2.9$ hours per subject.
+%           }
+%  \label{fig:times}
+%\end{figure}
 
 All images underwent the ANTs and FreeSurfer pipeline processing 
 using the computational cluster at the University of Virginia.  
 Processing times varied approximately between 10--20 hours per subject
 for both pipelines for the entire cortical thickness estimation procedure
-although ANTs processing, on average, took slightly longer (cf Figure \ref{fig:times}).  Averaged over all cohorts, ANTs required 
+although ANTs processing, on average, took slightly longer.  Averaged over all cohorts, ANTs required 
 $15.7 \pm 2.0 $ hours per subject and FreeSurfer required $14.1 \pm 2.9$ hours per subject.
 
 The propagation of the DKT labels to each subject using label fusion as described earlier
 was performed in parallel and took anywhere between 40 and 80 hours per 
-subject for 16 serial image registrations and application of the joint label fusion algorithm \citep{wang2013}. For each subject, 20 atlas registrations are used to generate the labeling 
+subject for 16 serial image registrations and application of the joint label fusion algorithm \citep{wang2013}. 
+For each subject, 20 atlas registrations are used to generate the labeling 
 for that subject.  Therefore to do the MALF labeling for the entire cohort, approximately 
-$1200 \times 20 = 24000$ registrations were required.  The {\tt antsMalfLabeling.sh} script
-mentioned earlier parallelizes
+$1200 \times 20 = 24000$ registrations were performed.  
+The {\tt antsMalfLabeling.sh} script mentioned earlier parallelizes
 the registration component which decreases the time for parallel computation platforms.
  
  

@@ -53,30 +53,30 @@ for( p in trainingPortions )
     #                       na.action = na.omit , iterations = 1000 )
     #   predictedAge <- predict( brainAgeVM, testingData )
 
-       brainAgeRF <- randomForest( AGE ~ ., data = trainingData, importance = TRUE,
-                    na.action = na.omit, replace = FALSE, ntree = 200 )
-       if( n == 1 )
-         {
-         if( whichPipeline == 'ANTs' )
-           {
-           forestImp[[1]] <- importance( brainAgeRF, type = 1 )
-           } else {
-           forestImp[[2]] <- importance( brainAgeRF, type = 1 )
-           }
-         } else {
-         if( whichPipeline == 'ANTs' )
-           {
-           forestImp[[1]] <- forestImp[[1]] + importance( brainAgeRF, type = 1 )
-           } else {
-           forestImp[[2]] <- forestImp[[2]] + importance( brainAgeRF, type = 1 )
-           }
-         }
-       predictedAge <- predict( brainAgeRF, testingData )
+#        brainAgeRF <- randomForest( AGE ~ ., data = trainingData, importance = TRUE,
+#                     na.action = na.omit, replace = FALSE, ntree = 200 )
+#        if( n == 1 )
+#          {
+#          if( whichPipeline == 'ANTs' )
+#            {
+#            forestImp[[1]] <- importance( brainAgeRF, type = 1 )
+#            } else {
+#            forestImp[[2]] <- importance( brainAgeRF, type = 1 )
+#            }
+#          } else {
+#          if( whichPipeline == 'ANTs' )
+#            {
+#            forestImp[[1]] <- forestImp[[1]] + importance( brainAgeRF, type = 1 )
+#            } else {
+#            forestImp[[2]] <- forestImp[[2]] + importance( brainAgeRF, type = 1 )
+#            }
+#          }
+#        predictedAge <- predict( brainAgeRF, testingData )
 
-#       regionalTerms <- paste( corticalLabels, collapse = " * SEX + " )
-#       myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + VOLUME ", sep = '' ) )
-#       brainAgeLM <- lm( myFormula, data = trainingData, na.action = na.omit )
-#       predictedAge <- predict( brainAgeLM, testingData )
+      regionalTerms <- paste( corticalLabels, collapse = " * SEX + " )
+      myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + VOLUME ", sep = '' ) )
+      brainAgeLM <- lm( myFormula, data = trainingData, na.action = na.omit )
+      predictedAge <- predict( brainAgeLM, testingData )
 
       rmse <- sqrt( mean( ( ( testingData$AGE - predictedAge )^2 ), na.rm = TRUE ) )
 
@@ -85,27 +85,27 @@ for( p in trainingPortions )
       }
     }
 
-  for( n in 1:2 )
-    {
-    forestImp[[n]] <- forestImp[[n]] / nPermutations
-
-    forestImp.df <- data.frame( Statistic = names( forestImp[[n]][,1] ), Importance = as.numeric( forestImp[[n]][,1] )  )
-    forestImp.df <- forestImp.df[order( forestImp.df$Importance ),]
-
-    forestImp.df$Statistic <- factor( x = forestImp.df$Statistic, levels = forestImp.df$Statistic )
-
-    vPlot <- ggplot( data = forestImp.df, aes( x = Importance, y = Statistic ) ) +
-             geom_point( aes( color = Importance ) ) +
-             ylab( "" ) +
-             scale_x_continuous( "MeanDecreaseAccuracy", limits = c( 0, 16 ) ) +
-             scale_color_continuous( low = "navyblue", high = "darkred" ) +
-             theme( axis.text.y = element_text( size = 5 ) ) +
-             theme( plot.margin = unit( c( 0.1, 0.1, 0.1, -0.5 ), "cm" ) ) +
-             theme( axis.title = element_text( size = 10 ) ) +
-             theme( legend.position = "none" )
-
-    ggsave( file = paste( "~/Desktop/importance", thicknessTypes[n], p, ".pdf", sep = "" ), plot = vPlot, width = 4, height = 8 )
-    }
+#   for( n in 1:2 )
+#     {
+#     forestImp[[n]] <- forestImp[[n]] / nPermutations
+#
+#     forestImp.df <- data.frame( Statistic = names( forestImp[[n]][,1] ), Importance = as.numeric( forestImp[[n]][,1] )  )
+#     forestImp.df <- forestImp.df[order( forestImp.df$Importance ),]
+#
+#     forestImp.df$Statistic <- factor( x = forestImp.df$Statistic, levels = forestImp.df$Statistic )
+#
+#     vPlot <- ggplot( data = forestImp.df, aes( x = Importance, y = Statistic ) ) +
+#              geom_point( aes( color = Importance ) ) +
+#              ylab( "" ) +
+#              scale_x_continuous( "MeanDecreaseAccuracy", limits = c( 0, 16 ) ) +
+#              scale_color_continuous( low = "navyblue", high = "darkred" ) +
+#              theme( axis.text.y = element_text( size = 5 ) ) +
+#              theme( plot.margin = unit( c( 0.1, 0.1, 0.1, -0.5 ), "cm" ) ) +
+#              theme( axis.title = element_text( size = 10 ) ) +
+#              theme( legend.position = "none" )
+#
+#     ggsave( file = paste( "~/Desktop/importance", thicknessTypes[n], p, ".pdf", sep = "" ), plot = vPlot, width = 4, height = 8 )
+#     }
 
   rmsePlot <- ggplot( resultsData, aes( x = RMSE, fill = Pipeline ) ) +
                       scale_y_continuous( "Density" ) +

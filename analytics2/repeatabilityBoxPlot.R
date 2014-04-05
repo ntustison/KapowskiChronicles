@@ -79,8 +79,13 @@ for( i in 1:length( whichThickness ) )
       boxPlotDataFrame <- rbind( boxPlotDataFrame, data.frame( Site = site, Pipeline = pipeline,
                                  Hemisphere = hemisphere, CorticalRegion = roi, Error = r ) )
       }
+    cat( whichThickness[i], " (", sites[j], ") ",
+      "mean repeatability error:  ", mean( as.matrix( repeatabilityError ) ),
+      " (", sd( as.matrix( repeatabilityError ) ), ")",
+      "\n", sep = ""  )
     }
   }
+
 
 boxPlotLeftDataFrame <- boxPlotDataFrame[which( boxPlotDataFrame$Hemisphere == 'Left' ),]
 boxPlotRightDataFrame <- boxPlotDataFrame[which( boxPlotDataFrame$Hemisphere == 'Right' ),]

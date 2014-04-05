@@ -5,7 +5,7 @@ library( ggplot2 )
 
 nPermutations <- 1000
 
-trainingPortions <- c( 0.1, 0.2, 0.3, 0.4, 0.5 )
+trainingPortions <- c( 0.5 )
 
 for( p in trainingPortions )
   {
@@ -26,9 +26,11 @@ for( p in trainingPortions )
       resultsNKI <- read.csv( paste0( 'labelresults', whichPipeline, 'N.csv' ) )
       resultsOasis <- read.csv( paste0( 'labelresults', whichPipeline, 'O.csv' ) )
 
-      resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis );
+      resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
       resultsCombined$SITE <- as.factor( resultsCombined$SITE )
       resultsCombined$SEX <- as.factor( resultsCombined$SEX )
+
+      resultsCombined <- resultsCombined[which( resultsCombined$AGE >= 20 & resultsCombined$AGE <= 80 ),]
 
       corticalLabels <- tail( colnames( resultsCombined ), n = 62 )
 
@@ -42,6 +44,13 @@ for( p in trainingPortions )
       brainAgeRF <- randomForest( AGE ~ ., data = trainingData,
                         na.action = na.omit, replace = FALSE, ntree = 200 )
       predictedAge <- predict( brainAgeRF, testingData )
+
+#       regionalQuadraticTerms <- paste0( "I(", corticalLabels, collapse = "^2) * SEX + " )
+#       myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + ", regionalQuadraticTerms, "^2) + VOLUME ", sep = '' ) )
+#       regionalTerms <- paste( corticalLabels, collapse = " * SEX + " )
+#       myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + VOLUME ", sep = '' ) )
+#       brainAgeLM <- lm( myFormula, data = trainingData, na.action = na.omit )
+#       predictedAge <- predict( brainAgeLM, testingData )
 
       rmse <- sqrt( mean( ( ( testingData$AGE - predictedAge )^2 ), na.rm = TRUE ) )
 
