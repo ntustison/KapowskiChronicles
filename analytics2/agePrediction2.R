@@ -21,12 +21,13 @@ for( p in trainingPortions )
     thicknessTypes = c( 'ANTs', 'FreeSurfer' )
     for( whichPipeline in thicknessTypes )
       {
-      resultsIXI <- read.csv( paste0( 'labelresults', whichPipeline, 'I.csv' ) )
-      resultsKirby <- read.csv( paste0( 'labelresults', whichPipeline, 'K.csv' ) )
-      resultsNKI <- read.csv( paste0( 'labelresults', whichPipeline, 'N.csv' ) )
+#       resultsIXI <- read.csv( paste0( 'labelresults', whichPipeline, 'I.csv' ) )
+#       resultsKirby <- read.csv( paste0( 'labelresults', whichPipeline, 'K.csv' ) )
+#       resultsNKI <- read.csv( paste0( 'labelresults', whichPipeline, 'N.csv' ) )
       resultsOasis <- read.csv( paste0( 'labelresults', whichPipeline, 'O.csv' ) )
+      resultsCombined <- rbind( resultsOasis )
 
-      resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
+#       resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
       resultsCombined$SITE <- as.factor( resultsCombined$SITE )
       resultsCombined$SEX <- as.factor( resultsCombined$SEX )
 
