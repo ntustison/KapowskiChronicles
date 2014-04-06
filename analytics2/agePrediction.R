@@ -6,7 +6,7 @@ library( grid )
 
 nPermutations <- 500
 
-trainingPortions <- c( 0.6, 0.7, 0.8, 0.9 ) # seq( 0.05, 0.25, by = 0.01 ); #
+trainingPortions <- c( 0.5 ) # seq( 0.05, 0.25, by = 0.01 ); #
 
 antsRmse <- c()
 fsRmse <- c()
@@ -119,7 +119,16 @@ for( p in trainingPortions )
   antsRmse[count] <- mean( resultsData$RMSE[which( resultsData$Pipeline == 'ANTs' )], na.rm = TRUE )
   fsRmse[count] <- mean( resultsData$RMSE[which( resultsData$Pipeline == 'FreeSurfer' )], na.rm = TRUE )
   count <- count + 1
+
+# for( i in 1:length( forestImp[[1]] ) )
+#   {
+#   cat( rownames( forestImp[[1]] )[i], forestImp[[1]][i], forestImp[[2]][i],  sep = ',' )
+#   cat( "\n" )
+#   }
+
   }
+
+
 
 
 # cat( fsRmse, "\n" )

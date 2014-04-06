@@ -21,13 +21,12 @@ for( p in trainingPortions )
     thicknessTypes = c( 'ANTs', 'FreeSurfer' )
     for( whichPipeline in thicknessTypes )
       {
-#       resultsIXI <- read.csv( paste0( 'labelresults', whichPipeline, 'I.csv' ) )
-#       resultsKirby <- read.csv( paste0( 'labelresults', whichPipeline, 'K.csv' ) )
-#       resultsNKI <- read.csv( paste0( 'labelresults', whichPipeline, 'N.csv' ) )
+      resultsIXI <- read.csv( paste0( 'labelresults', whichPipeline, 'I.csv' ) )
+      resultsKirby <- read.csv( paste0( 'labelresults', whichPipeline, 'K.csv' ) )
+      resultsNKI <- read.csv( paste0( 'labelresults', whichPipeline, 'N.csv' ) )
       resultsOasis <- read.csv( paste0( 'labelresults', whichPipeline, 'O.csv' ) )
-      resultsCombined <- rbind( resultsOasis )
 
-#       resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
+      resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis )
       resultsCombined$SITE <- as.factor( resultsCombined$SITE )
       resultsCombined$SEX <- as.factor( resultsCombined$SEX )
 
@@ -48,7 +47,7 @@ for( p in trainingPortions )
 
 #       regionalQuadraticTerms <- paste0( "I(", corticalLabels, collapse = "^2) * SEX + " )
 #       myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + ", regionalQuadraticTerms, "^2) + VOLUME ", sep = '' ) )
-#       regionalTerms <- paste( corticalLabels, collapse = " * SEX + " )
+#       regionalTerms <- paste( corticalLabels, collapse = " + " )
 #       myFormula <- as.formula( paste( "AGE ~ SEX + ", regionalTerms, " + VOLUME ", sep = '' ) )
 #       brainAgeLM <- lm( myFormula, data = trainingData, na.action = na.omit )
 #       predictedAge <- predict( brainAgeLM, testingData )
@@ -62,7 +61,7 @@ for( p in trainingPortions )
 
   rmsePlot <- ggplot( resultsData, aes( x = RMSE, fill = Pipeline ) ) +
                       scale_y_continuous( "Density" ) +
-                      scale_x_continuous( "RMSE", limits = c( 9, 15.5 ) ) +
+                      scale_x_continuous( "RMSE", limits = c( 9, 14. ) ) +
                      geom_density( alpha = 0.5 )
   ggsave( filename = paste( "~/Desktop/rfRmse", p, ".pdf", sep = "" ), plot = rmsePlot, width = 6, height = 6, units = 'in' )
   cat( "Mean FS rmse = ", mean( resultsData$RMSE[which( resultsData$Pipeline == 'FreeSurfer' )], na.rm = TRUE ), "\n", sep = '' );
