@@ -87,24 +87,26 @@ for( p in trainingPortions )
 
   for( n in 1:2 )
     {
-    forestImp[[n]] <- forestImp[[n]] / nPermutations
+#     forestImp[[n]] <- forestImp[[n]] / nPermutations
 
     forestImp.df <- data.frame( Statistic = names( forestImp[[n]][,1] ), Importance = as.numeric( forestImp[[n]][,1] )  )
     forestImp.df <- forestImp.df[order( forestImp.df$Importance ),]
 
     forestImp.df$Statistic <- factor( x = forestImp.df$Statistic, levels = forestImp.df$Statistic )
+    levels( forestImp.df$Statistic )[which( levels( forestImp.df$Statistic ) == 'SEX' )] <- 'Gender'
+    levels( forestImp.df$Statistic )[which( levels( forestImp.df$Statistic ) == 'VOLUME' )] <- 'Volume'
 
     vPlot <- ggplot( data = forestImp.df, aes( x = Importance, y = Statistic ) ) +
              geom_point( aes( color = Importance ) ) +
              ylab( "" ) +
              scale_x_continuous( "MeanDecreaseAccuracy", limits = c( 0, 16 ) ) +
              scale_color_continuous( low = "navyblue", high = "darkred" ) +
-             theme( axis.text.y = element_text( size = 5 ) ) +
+             theme( axis.text.y = element_text( size = 8 ) ) +
              theme( plot.margin = unit( c( 0.1, 0.1, 0.1, -0.5 ), "cm" ) ) +
-             theme( axis.title = element_text( size = 10 ) ) +
+             theme( axis.title = element_text( size = 9 ) ) +
              theme( legend.position = "none" )
 
-    ggsave( file = paste( "~/Desktop/importance", thicknessTypes[n], p, ".pdf", sep = "" ), plot = vPlot, width = 4, height = 8 )
+    ggsave( file = paste( "~/Desktop/importanceCombined", thicknessTypes[n], p, ".pdf", sep = "" ), plot = vPlot, width = 3, height = 8 )
     }
 
   rmsePlot <- ggplot( resultsData, aes( x = RMSE, fill = Pipeline ) ) +

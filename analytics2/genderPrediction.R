@@ -7,8 +7,6 @@ library( ROCR )
 library( caret )
 library( ggplot2 )
 
-library( ggplot2 )
-
 nPermutations <- 1000
 trainingPortions <- c( 0.5 )
 
@@ -50,7 +48,7 @@ for( trainingPortion in trainingPortions )
       #   Include all AGE/REGION interaction terms
       #
 
-      regionalTerms <- paste( corticalLabels, collapse = " * AGE + " )
+      regionalTerms <- paste( corticalLabels, collapse = " + " )
       myFormula <- as.formula( paste( "SEX ~ AGE + ", regionalTerms, " + VOLUME ", sep = '' ) )
 
       genderModel <- glm( myFormula, data = trainingData, family = "binomial" )

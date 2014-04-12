@@ -5,8 +5,7 @@ library( visreg )
 ############################################
 #
 # Section 3.4:  Gender and Age Relationships with DiReCT Cortical Thickness
-#   Look at basic regression results, i.e.
-#     thickness ~ 1 + AGE + AGE^2 + GENDER + SITE + VOLUME
+#   Look at basic regression results
 #
 ############################################
 
