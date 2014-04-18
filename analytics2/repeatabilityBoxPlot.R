@@ -25,6 +25,11 @@ boxPlotDataFrame <- data.frame( Site = character( 0 ), Pipeline = character( 0 )
                                 Hemisphere = character( 0 ), CorticalRegion = character( 0 ),
                                 Error = numeric( 0 ) )
 
+
+meanRegionalRepeatabilityError <- data.frame( CorticalRegion = character( 0 ), Pipeline = character( 0 ),
+                                      Error = numeric( 0 ) )
+
+
 for( i in 1:length( whichThickness ) )
   {
   for( j in 1:2 )
@@ -55,6 +60,12 @@ for( i in 1:length( whichThickness ) )
       repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), indices] ) /
       ( 0.5 * (  repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "First" ), indices] +
         repeatabilityDataFrame[which( repeatabilityDataFrame$ScanOrder == "Repeat" ), indices] ) )
+
+    meanRegionalRepeatabilityError <- rbind( meanRegionalRepeatabilityError,
+                                             data.frame( CorticalRegion = colnames( repeatabilityError ),
+                                                         Pipeline = rep( whichThickness[i], length( colnames( repeatabilityError ) ) ),
+                                                         Error = colMeans( repeatabilityError ) )
+                                           )
 
     for( k in 1:length( corticalLabels ) )
       {
@@ -89,6 +100,11 @@ for( i in 1:length( whichThickness ) )
 
 boxPlotLeftDataFrame <- boxPlotDataFrame[which( boxPlotDataFrame$Hemisphere == 'Left' ),]
 boxPlotRightDataFrame <- boxPlotDataFrame[which( boxPlotDataFrame$Hemisphere == 'Right' ),]
+
+pipelineCorrelation <- cor( meanRegionalRepeatabilityError$Error[which( meanRegionalRepeatabilityError$Pipeline == 'ANTs' )],
+                            meanRegionalRepeatabilityError$Error[which( meanRegionalRepeatabilityError$Pipeline == 'FreeSurfer' )],
+                            method = 'pearson'
+                          )
 
 myBoxPlotLeft <- ggplot( boxPlotLeftDataFrame, aes( x = CorticalRegion, y = Error ) ) +
                    geom_boxplot( aes( fill = Pipeline ) ) +
