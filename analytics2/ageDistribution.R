@@ -5,16 +5,7 @@ resultsKirby <- read.csv( 'labelresultsANTsK.csv' )
 resultsNKI <- read.csv( 'labelresultsANTsN.csv' )
 resultsOasis <- read.csv( 'labelresultsANTsO.csv' )
 
-resultsCombined <- rbind( resultsIXI, resultsKirby, resultsNKI, resultsOasis );
-
-gender <- cut( resultsCombined$SEX, breaks = c( 0.5, 1.5, 2.5 ), label = c( "male", "female" ) );
-gender[which( gender == 1 )] <- 'male';
-gender[which( gender == 2 )] <- 'female';
-
-site <- cut( as.numeric( resultsCombined$SITE ), breaks = c( 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5 ), label = c( "IXI-Guys", "IXI-HH", "IXI-IOP", "MMRR", "NKI", "OASIS" ) )
-
-
-plotData <- data.frame( cbind( Age = resultsCombined$AGE, Gender = gender, Site = site ) )
+plotData <- data.frame( cbind( SubjectTimePoint = results$TimePoint, Gender = gender, Site = site ) )
 plotData <- transform( plotData, Gender = factor( Gender ) )
 plotData$Site <- factor( site, levels = c( "IXI-Guys", "IXI-HH", "IXI-IOP", "MMRR", "NKI", "OASIS" ) )
 
